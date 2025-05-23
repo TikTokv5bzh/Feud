@@ -4,48 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لعبة فاميلي فيود</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Almarai:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Almarai:wght@700;800&family=Roboto+Slab:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --feud-bg: #0f1a3a; /* Deep blue background */
-            --feud-primary: #1e376b; /* Darker blue for elements */
-            --feud-secondary: #2a5298; /* Lighter blue */
-            --feud-accent: #ffd700; /* Gold/Yellow accent */
+            --feud-bg: #0f1a3a;
+            --feud-primary: #1e376b;
+            --feud-secondary: #2a5298;
+            --feud-accent: #ffd700;
             --feud-text-light: #f0f0f0;
             --feud-text-dark: #111111;
-            --feud-revealed-bg: #ffcc00; /* Bright yellow for revealed answers */
+            --feud-revealed-bg: #ffcc00;
             --feud-revealed-text: #000000;
-            --feud-hidden-bg: #1c3d7e; /* Blue for hidden answers */
+            --feud-hidden-bg: #1c3d7e;
             --feud-hidden-text: #a0b8e0;
+            --feud-title-font: 'Roboto Slab', 'Cairo', serif;
         }
 
-        body { 
-            font-family: 'Almarai', 'Cairo', sans-serif; 
-            margin: 0; 
+        body {
+            font-family: 'Almarai', 'Cairo', sans-serif;
+            margin: 0;
             padding: 0;
-            background-color: var(--feud-bg); 
-            color: var(--feud-text-light); 
-            line-height: 1.6; 
+            background-color: var(--feud-bg);
+            color: var(--feud-text-light);
+            line-height: 1.6;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        .top-nav-buttons { 
+        .top-nav-buttons {
             width: 100%;
             background-color: var(--feud-primary);
             padding: 10px 0;
-            text-align: center; 
+            text-align: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
             z-index: 100;
         }
-        .top-nav-buttons button { 
-            background-color: var(--feud-accent); 
-            color: var(--feud-text-dark); 
-            border: none; 
+        .top-nav-buttons button {
+            background-color: var(--feud-accent);
+            color: var(--feud-text-dark);
+            border: none;
             padding: 10px 20px;
             margin: 5px 10px;
             border-radius: 6px;
@@ -54,8 +55,8 @@
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.1s ease;
         }
-        .top-nav-buttons button:hover { 
-            background-color: #ffec80; /* Lighter gold on hover */
+        .top-nav-buttons button:hover {
+            background-color: #ffec80;
             transform: translateY(-1px);
         }
         .top-nav-buttons button.active-nav {
@@ -64,72 +65,70 @@
              box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
 
-
-        .container { 
+        .container {
             width: 100%;
-            max-width: 950px; 
-            margin: 20px auto; /* Added auto for horizontal centering */
+            max-width: 950px;
+            margin: 20px auto;
             padding: 20px;
-            background-color: var(--feud-secondary); /* Slightly lighter blue for content area */
+            background-color: var(--feud-secondary);
             border-radius: 12px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
-        .page { 
-            display: none; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-top: 10px; /* Reduced margin */
+        .page {
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 10px;
             animation: fadeIn 0.5s ease-in-out;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .active-page { 
-            display: block; 
+        .active-page {
+            display: block;
         }
-        
-        /* General Button Styles (can be overridden) */
-        button { 
-            padding: 12px 22px; 
-            margin: 10px 5px; 
-            background-color: var(--feud-accent); 
-            color: var(--feud-text-dark); 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
+
+        button {
+            padding: 12px 22px;
+            margin: 10px 5px;
+            background-color: var(--feud-accent);
+            color: var(--feud-text-dark);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
             font-family: 'Almarai', 'Cairo', sans-serif;
             font-weight: bold;
-            font-size: 1em; 
-            transition: background-color 0.2s ease, transform 0.1s ease; 
+            font-size: 1em;
+            transition: background-color 0.2s ease, transform 0.1s ease;
             box-shadow: 0 3px 6px rgba(0,0,0,0.15);
         }
-        button:hover { 
-            background-color: #ffe066; /* Lighter gold */
+        button:hover {
+            background-color: #ffe066;
             transform: translateY(-1px);
         }
         button:active {
             transform: translateY(0px);
         }
 
-        button.secondary { background-color: #5c6ac4; color: var(--feud-text-light); } /* Indigo-like blue */
+        button.secondary { background-color: #5c6ac4; color: var(--feud-text-light); }
         button.secondary:hover { background-color: #4a55a0; }
-        button.danger { background-color: #e74c3c; color: var(--feud-text-light); } /* Red */
+        button.danger { background-color: #e74c3c; color: var(--feud-text-light); }
         button.danger:hover { background-color: #c0392b; }
-        button.success { background-color: #2ecc71; color: var(--feud-text-light); } /* Green */
+        button.success { background-color: #2ecc71; color: var(--feud-text-light); }
         button.success:hover { background-color: #27ae60; }
-        button.info { background-color: #3498db; color: var(--feud-text-light); } /* Blue */
+        button.info { background-color: #3498db; color: var(--feud-text-light); }
         button.info:hover { background-color: #2980b9; }
 
-        input[type="text"], input[type="number"] { 
-            padding: 12px; 
-            margin: 8px 0; 
-            border: 2px solid var(--feud-primary); 
-            background-color: #f0f8ff; /* Alice blue, light */
+        input[type="text"], input[type="number"] {
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid var(--feud-primary);
+            background-color: #f0f8ff;
             color: var(--feud-text-dark);
-            border-radius: 8px; 
-            width: 100%; 
-            box-sizing: border-box; 
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
             font-size: 1em;
             font-family: 'Almarai', 'Cairo', sans-serif;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -139,150 +138,212 @@
             box-shadow: 0 0 0 0.2rem rgba(255,215,0,.35);
             outline: none;
         }
-        .answer-input-group { 
-            display: flex; 
-            align-items: center; 
-            margin-bottom: 15px; 
-            gap: 12px; 
-            background-color: var(--feud-primary); /* Darker blue for contrast */
+        .answer-input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 12px;
+            background-color: var(--feud-primary);
             padding: 10px;
             border-radius: 6px;
         }
         .answer-input-group input[type="text"] { flex-grow: 1; }
-        .answer-input-group input[type="number"] { width: 90px; text-align: center; }
-        
-        h1, h2, h3 { 
-            color: var(--feud-accent); /* Gold for headers */
-            text-align: center; 
+        .answer-input-group input[type="number"] { width: 120px; text-align: center; } /* Wider for "عدد المجيبين" */
+
+        h1, h2, h3 {
+            color: var(--feud-accent);
+            text-align: center;
             margin-bottom: 20px;
-            font-family: 'Cairo', sans-serif; /* Bolder font for headers */
+            font-family: 'Cairo', sans-serif;
             font-weight: 900;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
         }
-        h1 { font-size: 2.5em; margin-bottom: 30px; text-transform: uppercase;}
+        h1.game-title {
+            font-family: var(--feud-title-font);
+            font-size: 3.5em;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            color: #FFF;
+            background: linear-gradient(180deg, #fdf54d 0%, #fbcb1a 50%, #f09819 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* text-fill-color: transparent; */ /* Commented out for wider browser compatibility if needed */
+            position: relative;
+            padding: 10px 20px;
+            display: inline-block;
+            text-shadow:
+                -1px -1px 0 #6b4209,
+                 1px -1px 0 #6b4209,
+                -1px  1px 0 #6b4209,
+                 1px  1px 0 #6b4209,
+                 3px 3px 0px rgba(0,0,0,0.5);
+        }
+        h1.game-title::before {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: -1;
+            background: linear-gradient(180deg, #e4bc0d 0%, #d48d0a 50%, #c07009 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* text-fill-color: transparent; */
+            transform: translate(2px, 2px);
+            text-shadow: none;
+        }
+
         h2 { font-size: 2em; }
         h3 { font-size: 1.6em; }
 
-        hr { 
-            border: 0; 
-            height: 2px; 
+        hr {
+            border: 0;
+            height: 2px;
             background-image: linear-gradient(to right, transparent, var(--feud-accent), transparent);
-            margin: 30px 0; 
+            margin: 30px 0;
         }
-        
-        #gameQuestionsList button { 
-            display: inline-block; 
-            margin: 10px; 
-            width: auto; 
-            padding: 12px 25px; 
-            font-size: 1.1em;
+
+        #gameQuestionsList {
+            text-align: center;
+            padding: 15px 0;
+        }
+        #gameQuestionsList button {
+            display: inline-block;
+            margin: 10px;
+            width: 60px;
+            height: 60px;
+            padding: 0;
+            font-size: 1.5em;
             background-color: var(--feud-accent);
             color: var(--feud-text-dark);
-            border: 2px solid var(--feud-text-dark);
+            border: 3px solid var(--feud-text-dark);
             box-shadow: 3px 3px 0px var(--feud-text-dark);
+            line-height: 54px;
+            text-align: center;
         }
-         #gameQuestionsList button:hover {
+        #gameQuestionsList button.active-question-btn { /* Style for the currently selected question button */
+            background-color: var(--feud-primary) !important;
+            color: var(--feud-accent) !important;
+            border-color: var(--feud-accent) !important;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3), 1px 1px 0px var(--feud-accent);
+            transform: translate(1px, 1px);
+        }
+         #gameQuestionsList button:hover:not(.active-question-btn) {
             background-color: #ffe066;
             box-shadow: 1px 1px 0px var(--feud-text-dark);
             transform: translate(2px, 2px);
          }
-        
-        #questionDisplay { 
-            margin-top: 25px; 
-            padding: 30px; 
-            background-color: var(--feud-primary); 
-            border-radius: 15px; 
+
+        #questionDisplay {
+            margin-top: 25px;
+            padding: 30px;
+            background-color: var(--feud-primary);
+            border-radius: 15px;
             box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
         }
-        #currentQuestionText { 
-            font-size: 2em; 
-            font-weight: 800; /* Almarai bold */
-            margin-bottom: 30px; 
-            color: var(--feud-text-light); 
+        #currentQuestionTitle { /* For displaying "السؤال رقم X" */
+            font-size: 1.5em;
+            color: var(--feud-accent);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        #currentQuestionText {
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 30px;
+            color: var(--feud-text-light);
             text-align: center;
             padding: 15px;
             background-color: rgba(0,0,0,0.2);
             border-radius: 10px;
         }
-        #answersArea .answer-slot { 
-            background-color: var(--feud-hidden-bg); 
-            color: var(--feud-hidden-text); 
-            padding: 20px; 
-            margin: 15px auto; /* Centering slots */
-            width: 90%; /* Control width */
-            max-width: 600px; /* Max width for slots */
-            border-radius: 10px; 
+
+        #answersBoard {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .answer-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #answersBoard .answer-slot {
+            background-color: var(--feud-hidden-bg);
+            color: var(--feud-hidden-text);
+            padding: 18px 15px;
+            border-radius: 10px;
             border: 3px solid var(--feud-accent);
-            cursor: pointer; 
-            text-align: center; 
-            transition: background-color 0.4s ease, color 0.4s ease, transform 0.2s ease, box-shadow 0.3s ease; 
-            font-size: 1.4em; /* Larger text for answers */
+            cursor: pointer;
+            text-align: right;
+            transition: background-color 0.4s ease, color 0.4s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            font-size: 1.3em;
             font-weight: bold;
             box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-            position: relative; /* For rank positioning */
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-height: 60px;
         }
-        #answersArea .answer-slot:hover { 
-            transform: scale(1.03); 
+        #answersBoard .answer-slot:hover {
+            transform: scale(1.02);
             box-shadow: 0 8px 15px rgba(0,0,0,0.3);
         }
-        #answersArea .answer-slot.revealed { 
-            background-color: var(--feud-revealed-bg); 
-            color: var(--feud-revealed-text); 
+        #answersBoard .answer-slot.revealed {
+            background-color: var(--feud-revealed-bg);
+            color: var(--feud-revealed-text);
             border-color: var(--feud-text-dark);
-            cursor: default; 
+            cursor: default;
         }
-        #answersArea .answer-slot .rank { 
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+        #answersBoard .answer-slot .rank { /* This will now display the order number */
             background-color: rgba(0,0,0,0.2);
             color: var(--feud-text-light);
             padding: 5px 10px;
             border-radius: 50%;
             font-size: 0.8em;
-            min-width: 25px; /* Ensure circle shape */
-            height: 25px;
+            min-width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-left: 10px;
         }
-        #answersArea .answer-slot.revealed .rank {
+        #answersBoard .answer-slot.revealed .rank {
             background-color: var(--feud-text-dark);
             color: var(--feud-revealed-bg);
         }
-        #answersArea .answer-slot .text { 
-            display: inline-block; /* Allows centering */
-            margin: 0 40px; /* Space for rank and points */
+        #answersBoard .answer-slot .text {
+            flex-grow: 1;
+            text-align: right;
         }
-        #answersArea .answer-slot .points { 
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.9em; 
-            opacity: 0.9; 
-            background-color: rgba(0,0,0,0.2);
-            color: var(--feud-text-light);
+        #answersBoard .answer-slot .points { /* This will display "عدد المجيبين" as points */
+            font-size: 0.9em;
+            opacity: 1; /* Make it fully visible when revealed */
+            background-color: var(--feud-text-dark); /* Dark background for points */
+            color: var(--feud-accent); /* Gold text for points */
             padding: 5px 10px;
             border-radius: 6px;
+            margin-right: 10px;
+            font-weight: bold;
         }
-        #answersArea .answer-slot.revealed .points {
-            background-color: var(--feud-text-dark);
-            color: var(--feud-revealed-bg);
-        }
-        
+        /* No specific style for .revealed .points as it's always shown this way when revealed */
+
+
         .hidden { display: none !important; }
-        
+
         #currentQuestionsList ul { list-style-type: none; padding: 0; }
-        #currentQuestionsList li { 
-            background-color: var(--feud-primary); 
-            border: 1px solid var(--feud-accent); 
+        #currentQuestionsList li {
+            background-color: var(--feud-primary);
+            border: 1px solid var(--feud-accent);
             color: var(--feud-text-light);
-            padding: 12px 15px; 
-            margin-bottom: 10px; 
-            border-radius: 6px; 
-            font-size: 1em; 
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            font-size: 1em;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -291,68 +352,67 @@
             flex-grow: 1;
         }
         #currentQuestionsList li .delete-btn {
-            background-color: #e74c3c; 
+            background-color: #e74c3c;
             color: var(--feud-text-light);
             padding: 5px 10px;
             font-size: 0.8em;
-            margin-right: 0; 
+            margin-right: 0;
         }
         #currentQuestionsList li .delete-btn:hover {
             background-color: #c0392b;
         }
 
-        #adminPage label { 
-            font-weight: bold; 
-            display: block; 
-            margin-top: 12px; 
-            margin-bottom: 6px; 
-            color: var(--feud-accent); 
+        #adminPage label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            color: var(--feud-accent);
         }
-        
-        #gameStatus { 
-            text-align: center; 
+
+        #gameStatus {
+            text-align: center;
             font-size: 1.1em;
-            color: var(--feud-text-light); 
-            margin: 20px 0; 
+            color: var(--feud-text-light);
+            margin: 20px 0;
             padding: 12px;
             background-color: var(--feud-primary);
             border-radius: 6px;
             border: 1px solid var(--feud-accent);
         }
-        
-        #totalScoreArea { 
-            text-align: center; 
-            font-size: 1.8em; 
-            font-weight: bold; 
-            margin-top: 30px; 
-            padding: 20px; 
-            background-color: var(--feud-accent); 
-            color: var(--feud-text-dark); 
-            border-radius: 10px; 
+
+        #totalScoreArea {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--feud-accent);
+            color: var(--feud-text-dark);
+            border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             border: 3px solid var(--feud-text-dark);
         }
         .info-box {
-            margin-top: 20px; 
-            padding: 15px; 
-            background-color: rgba(255, 215, 0, 0.1); /* Light gold transparent */
-            border: 1px solid var(--feud-accent); 
-            color: var(--feud-text-light); 
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--feud-accent);
+            color: var(--feud-text-light);
             border-radius: 6px;
         }
         .info-box strong { color: var(--feud-accent); }
 
-        /* Modal styles */
         .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.7); /* Darker overlay */
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
             animation: fadeInModal 0.3s ease-out;
         }
         @keyframes fadeInModal {
@@ -362,7 +422,7 @@
         .modal-content {
             background-color: var(--feud-secondary);
             color: var(--feud-text-light);
-            margin: 15% auto; 
+            margin: 15% auto;
             padding: 30px;
             border: 2px solid var(--feud-accent);
             width: 80%;
@@ -389,7 +449,7 @@
     </div>
 
     <div class="container">
-        <h1>فاميلي فيود</h1>
+        <h1 class="game-title" data-text="فاميلي فيود">فاميلي فيود</h1>
 
         <div id="adminPage" class="page">
             <h2>تسجيل أسئلة فاميلي فيود</h2>
@@ -398,7 +458,7 @@
                 <input type="text" id="questionText" placeholder="أدخل نص السؤال هنا">
             </div>
             <hr>
-            <h3 id="adminAnswersHeader">الإجابات والنقاط:</h3>
+            <h3 id="adminAnswersHeader">الإجابات وعدد المجيبين (النقاط):</h3>
             <div id="answersInputContainer">
                 </div>
             <button onclick="addAnswerField()" class="secondary">➕ إضافة حقل إجابة</button>
@@ -413,27 +473,36 @@
             <h2>الأسئلة المضافة حالياً (قبل الحفظ في ملف):</h2>
             <div id="currentQuestionsList"><p>لم تتم إضافة أي أسئلة بعد.</p></div>
             <div class="info-box">
-                <strong>⚠️ ملاحظة هامة:</strong> بعد الضغط على "حفظ كل الأسئلة"، سيتم تحميل ملف باسم <code>questions.json</code>.
+                <strong>⚠️ ملاحظة هامة:</strong> عند إدخال الإجابات، الرقم الذي تدخله في حقل "عدد المجيبين" هو نفسه النقاط التي سيحصل عليها اللاعب عند كشف الإجابة.
+                <br>بعد الضغط على "حفظ كل الأسئلة"، سيتم تحميل ملف باسم <code>questions.json</code>.
                 يجب عليك <strong style="color: #ff4d4d;">رفع هذا الملف إلى مستودع GitHub Pages</strong> في نفس المجلد الذي يوجد به هذا الملف الـ HTML لكي تظهر الأسئلة في صفحة اللعبة.
             </div>
         </div>
 
         <div id="gamePage" class="page">
-            <h2>مرحباً بك في اللعبة!</h2>
-            <button onclick="loadGameQuestions()" class="info" style="font-size: 1.2em; padding: 15px 30px;">🚀 بدء اللعبة / تحميل الأسئلة</button>
-            <div id="gameStatus"></div>
-            
+            <div id="initialGameScreen">
+                 <h2>مرحباً بك في فاميلي فيود!</h2>
+                 <p style="text-align:center; font-size: 1.1em;">اضغط على الزر أدناه لتحميل الأسئلة والبدء.</p>
+                 <div style="text-align:center;">
+                    <button onclick="loadGameQuestions()" class="info" style="font-size: 1.2em; padding: 15px 30px;">🚀 تحميل الأسئلة</button>
+                 </div>
+            </div>
+            <div id="gameStatus" class="hidden"></div>
+
             <div id="questionSelectionArea" class="hidden">
                 <h3>اختر سؤالاً للبدء:</h3>
-                <div id="gameQuestionsList" style="text-align: center;">
+                <div id="gameQuestionsList">
                     </div>
             </div>
 
             <div id="questionDisplayArea" class="hidden">
-                <h3 id="currentQuestionText"></h3>
-                <div id="answersArea">
-                    </div>
-                <button onclick="returnToQuestionSelection()" class="secondary" style="margin-top: 20px;">العودة لاختيار الأسئلة</button>
+                <h3 id="currentQuestionTitle"></h3> <h2 id="currentQuestionText"></h2> <div id="answersBoard">
+                    <div class="answer-column" id="answerColumnLeft"></div>
+                    <div class="answer-column" id="answerColumnRight"></div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                     <button onclick="returnToQuestionSelection()" class="secondary">العودة لاختيار الأسئلة</button>
+                </div>
             </div>
 
             <div id="totalScoreArea" class="hidden">
@@ -462,14 +531,15 @@
 
     <script>
         // Global state variables
-        let adminQuestions = []; 
-        let gameData = []; 
-        let currentLoadedQuestion = null; 
+        let adminQuestions = [];
+        let gameData = [];
+        let currentLoadedQuestionIndex = -1; // To track the index of the current question
+        let currentLoadedQuestion = null;
         let currentQuestionTotalScore = 0;
-        const MAX_ANSWERS_PER_QUESTION = 8; 
-        const DEFAULT_ANSWER_FIELDS = 3;
+        const MAX_ANSWERS_PER_QUESTION = 10;
+        const DEFAULT_ANSWER_FIELDS = 5; // Default to 5 answer fields in admin
 
-        // --- Modal Logic ---
+        // Modal Logic (same as before)
         const confirmationModal = document.getElementById('confirmationModal');
         const alertModal = document.getElementById('alertModal');
         const modalMessage = document.getElementById('modalMessage');
@@ -479,34 +549,26 @@
         const alertOkButton = document.getElementById('alertOkButton');
         const navAdminButton = document.getElementById('navAdminButton');
         const navGameButton = document.getElementById('navGameButton');
-
         let confirmCallback = null;
 
         function showAlert(message) {
             alertMsgEl.textContent = message;
             alertModal.style.display = 'block';
         }
-
-        alertOkButton.onclick = function() {
-            alertModal.style.display = 'none';
-        }
-
+        alertOkButton.onclick = function() { alertModal.style.display = 'none'; }
         function showConfirmation(message, callback) {
             modalMessage.textContent = message;
             confirmCallback = callback;
             confirmationModal.style.display = 'block';
         }
-
         modalConfirmButton.onclick = function() {
             confirmationModal.style.display = 'none';
             if (confirmCallback) confirmCallback(true);
         }
-
         modalCancelButton.onclick = function() {
             confirmationModal.style.display = 'none';
             if (confirmCallback) confirmCallback(false);
         }
-
         window.onclick = function(event) {
             if (event.target == confirmationModal) {
                 confirmationModal.style.display = "none";
@@ -517,24 +579,16 @@
             }
         }
 
-
-        // --- Page Navigation ---
+        // Page Navigation
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active-page'));
             const targetPage = document.getElementById(pageId);
-            if (targetPage) {
-                targetPage.classList.add('active-page');
-            }
-            
-            // Update active state for top navigation buttons
+            if (targetPage) targetPage.classList.add('active-page');
+
             navAdminButton.classList.remove('active-nav');
             navGameButton.classList.remove('active-nav');
-            if (pageId === 'adminPage') {
-                navAdminButton.classList.add('active-nav');
-            } else if (pageId === 'gamePage') {
-                navGameButton.classList.add('active-nav');
-            }
-
+            if (pageId === 'adminPage') navAdminButton.classList.add('active-nav');
+            else if (pageId === 'gamePage') navGameButton.classList.add('active-nav');
 
             if (pageId === 'adminPage') {
                 renderAdminQuestionsList();
@@ -542,12 +596,22 @@
                 if (answersContainer.childElementCount === 0) {
                     for(let i = 0; i < DEFAULT_ANSWER_FIELDS; i++) addAnswerField();
                 }
-            } else if (pageId === 'gamePage' && gameData.length === 0) {
-                 document.getElementById('gameStatus').textContent = 'اضغط على "بدء اللعبة / تحميل الأسئلة" لتحميل ملف questions.json من المستودع.';
+            } else if (pageId === 'gamePage') {
+                if (gameData.length === 0) {
+                    document.getElementById('initialGameScreen').classList.remove('hidden');
+                    document.getElementById('questionSelectionArea').classList.add('hidden');
+                    document.getElementById('gameStatus').classList.add('hidden');
+                } else {
+                    document.getElementById('initialGameScreen').classList.add('hidden');
+                    document.getElementById('questionSelectionArea').classList.remove('hidden');
+                    document.getElementById('gameStatus').classList.remove('hidden');
+                    document.getElementById('gameStatus').textContent = 'اختر سؤالاً من القائمة أدناه.';
+                    highlightActiveQuestionButton(); // Highlight if a question was previously selected
+                }
             }
         }
 
-        // --- Admin Page Logic ---
+        // Admin Page Logic
         function addAnswerField() {
             const container = document.getElementById('answersInputContainer');
             if (container.childElementCount >= MAX_ANSWERS_PER_QUESTION) {
@@ -557,78 +621,46 @@
             const answerDiv = document.createElement('div');
             answerDiv.classList.add('answer-input-group');
             const count = container.childElementCount + 1;
+            // "النقاط" here is actually "عدد المجيبين"
             answerDiv.innerHTML = \`
-                <label for="answerText\${count}" class="hidden">الإجابة \${count}</label>
-                <input type="text" id="answerText\${count}" placeholder="نص الإجابة \${count}" class="admin-answer-text">
-                <label for="answerPoints\${count}" class="hidden">نقاط الإجابة \${count}</label>
-                <input type="number" id="answerPoints\${count}" placeholder="النقاط" class="admin-answer-points" min="0">
+                <input type="text" placeholder="نص الإجابة \${count}" class="admin-answer-text">
+                <input type="number" placeholder="عدد المجيبين" class="admin-answer-points" min="0">
             \`;
             container.appendChild(answerDiv);
         }
-
         function removeLastAnswerField() {
             const container = document.getElementById('answersInputContainer');
-            if (container.childElementCount > 1) { 
-                container.removeChild(container.lastElementChild);
-            } else {
-                showAlert("يجب أن يكون هناك حقل إجابة واحد على الأقل.");
-            }
+            if (container.childElementCount > 1) container.removeChild(container.lastElementChild);
+            else showAlert("يجب أن يكون هناك حقل إجابة واحد على الأقل.");
         }
-
         function addQuestionToList() {
             const questionText = document.getElementById('questionText').value.trim();
-            if (!questionText) {
-                showAlert("الرجاء إدخال نص السؤال.");
-                return;
-            }
-
+            if (!questionText) { showAlert("الرجاء إدخال نص السؤال."); return; }
             const answers = [];
             const answerTextInputs = document.querySelectorAll('#answersInputContainer .admin-answer-text');
             const answerPointsInputs = document.querySelectorAll('#answersInputContainer .admin-answer-points');
             let hasValidAnswer = false;
-
             for (let i = 0; i < answerTextInputs.length; i++) {
                 const text = answerTextInputs[i].value.trim();
-                const pointsStr = answerPointsInputs[i].value;
-                
-                if (text && pointsStr) { 
-                    const points = parseInt(pointsStr);
+                const pointsStr = answerPointsInputs[i].value; // This is "عدد المجيبين"
+                if (text && pointsStr) {
+                    const points = parseInt(pointsStr); // This will be used as points
                     if (!isNaN(points) && points >= 0) {
                         answers.push({ text: text, points: points, revealed: false });
                         hasValidAnswer = true;
-                    } else {
-                         showAlert(\`النقاط المدخلة للإجابة رقم \${i + 1} غير صحيحة. يجب أن تكون رقماً موجباً.\`);
-                         return;
-                    }
-                } else if (text || pointsStr) { 
-                    showAlert(\`البيانات غير مكتملة للإجابة رقم \${i + 1}. يجب إدخال نص ونقاط.\`);
-                    return;
-                }
+                    } else { showAlert(\`عدد المجيبين للإجابة رقم \${i + 1} غير صحيح.\`); return; }
+                } else if (text || pointsStr) { showAlert(\`البيانات غير مكتملة للإجابة رقم \${i + 1}.\`); return; }
             }
-
-            if (!hasValidAnswer) {
-                showAlert("الرجاء إدخال إجابة واحدة على الأقل مع نقاطها بشكل صحيح.");
-                return;
-            }
-            
-            answers.sort((a, b) => b.points - a.points);
-
-            adminQuestions.push({
-                id: Date.now(), 
-                question: questionText,
-                answers: answers
-            });
-
+            if (!hasValidAnswer) { showAlert("الرجاء إدخال إجابة واحدة على الأقل بشكل صحيح."); return; }
+            answers.sort((a, b) => b.points - a.points); // Sort by "عدد المجيبين" (points)
+            adminQuestions.push({ id: Date.now(), question: questionText, answers: answers });
             document.getElementById('questionText').value = '';
-            const answersContainer = document.getElementById('answersInputContainer');
-            answersContainer.innerHTML = ''; 
-            for(let i = 0; i < DEFAULT_ANSWER_FIELDS; i++) addAnswerField(); 
-
+            document.getElementById('answersInputContainer').innerHTML = '';
+            for(let i = 0; i < DEFAULT_ANSWER_FIELDS; i++) addAnswerField();
             localStorage.setItem('familyFeudAdminQuestions', JSON.stringify(adminQuestions));
             renderAdminQuestionsList();
             showAlert("تمت إضافة السؤال إلى القائمة المؤقتة بنجاح!");
         }
-        
         function deleteAdminQuestion(questionId) {
             showConfirmation("هل أنت متأكد أنك تريد حذف هذا السؤال من القائمة المؤقتة؟", (confirmed) => {
                 if (confirmed) {
@@ -639,40 +671,32 @@
                 }
             });
         }
-
         function renderAdminQuestionsList() {
             const listDiv = document.getElementById('currentQuestionsList');
-            listDiv.innerHTML = ''; 
+            listDiv.innerHTML = '';
             if (adminQuestions.length === 0) {
-                listDiv.innerHTML = '<p style="color: var(--feud-text-light);">لم تتم إضافة أي أسئلة بعد في الجلسة الحالية أو الذاكرة المؤقتة.</p>';
+                listDiv.innerHTML = '<p style="color: var(--feud-text-light);">لم تتم إضافة أي أسئلة بعد.</p>';
                 return;
             }
             const ul = document.createElement('ul');
             adminQuestions.forEach((q) => {
                 const li = document.createElement('li');
-                
                 const questionTextSpan = document.createElement('span');
                 questionTextSpan.classList.add('question-text');
-                questionTextSpan.textContent = \`السؤال: \${q.question} - (\${q.answers.length} إجابات)\`;
-                
+                questionTextSpan.textContent = \`السؤال: \${q.question} (\${q.answers.length} إجابات)\`;
                 const deleteButton = document.createElement('button');
                 deleteButton.classList.add('delete-btn');
                 deleteButton.textContent = 'حذف';
                 deleteButton.onclick = () => deleteAdminQuestion(q.id);
-                
                 li.appendChild(questionTextSpan);
                 li.appendChild(deleteButton);
                 ul.appendChild(li);
             });
             listDiv.appendChild(ul);
         }
-
         function saveQuestionsToFile() {
-            if (adminQuestions.length === 0) {
-                showAlert("لا توجد أسئلة لحفظها. الرجاء إضافة أسئلة أولاً.");
-                return;
-            }
-            const jsonString = JSON.stringify(adminQuestions, null, 2); 
+            if (adminQuestions.length === 0) { showAlert("لا توجد أسئلة لحفظها."); return; }
+            const jsonString = JSON.stringify(adminQuestions, null, 2);
             const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -682,107 +706,114 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showAlert("تم إنشاء ملف questions.json وجاري تنزيله. لا تنسَ رفعه إلى مستودع GitHub الخاص بك!");
+            showAlert("تم إنشاء ملف questions.json. لا تنسَ رفعه إلى GitHub Pages!");
         }
-
         function loadFromLocalStorage() {
             const savedQuestions = localStorage.getItem('familyFeudAdminQuestions');
             if (savedQuestions) {
                 adminQuestions = JSON.parse(savedQuestions);
                 renderAdminQuestionsList();
-                // showAlert("تم تحميل الأسئلة من الذاكرة المؤقتة للمتصفح."); // Alert might be too intrusive on load
-            } else {
-                // showAlert("لا توجد أسئلة محفوظة في الذاكرة المؤقتة للمتصفح.");
             }
         }
-        
         function clearLocalStorage(){
-            showConfirmation("هل أنت متأكد أنك تريد مسح جميع الأسئلة المحفوظة مؤقتاً في هذا المتصفح؟ هذا الإجراء لا يمكن التراجع عنه.", (confirmed) => {
+            showConfirmation("هل أنت متأكد من مسح جميع الأسئلة المحفوظة مؤقتاً؟", (confirmed) => {
                 if (confirmed) {
                     localStorage.removeItem('familyFeudAdminQuestions');
                     adminQuestions = [];
                     renderAdminQuestionsList();
-                    showAlert("تم مسح جميع الأسئلة المحفوظة مؤقتاً من المتصفح.");
+                    showAlert("تم مسح الأسئلة المحفوظة مؤقتاً.");
                 }
             });
         }
 
-        // --- Game Page Logic ---
+        // Game Page Logic
         async function loadGameQuestions() {
             const gameStatusEl = document.getElementById('gameStatus');
-            gameStatusEl.textContent = '⏳ جاري تحميل ملف الأسئلة (questions.json)...';
+            const initialScreen = document.getElementById('initialGameScreen');
+            initialScreen.classList.add('hidden');
+            gameStatusEl.classList.remove('hidden');
+            gameStatusEl.textContent = '⏳ جاري تحميل ملف الأسئلة...';
             document.getElementById('questionSelectionArea').classList.add('hidden');
             document.getElementById('questionDisplayArea').classList.add('hidden');
             document.getElementById('totalScoreArea').classList.add('hidden');
-
             try {
                 const response = await fetch('questions.json?cachebust=' + new Date().getTime());
-                if (!response.ok) {
-                    throw new Error(\`فشل تحميل ملف الأسئلة. تأكد من أن الملف (questions.json) موجود في نفس مسار ملف HTML على GitHub Pages. رمز الخطأ: \${response.status}\`);
-                }
+                if (!response.ok) throw new Error(\`فشل تحميل ملف الأسئلة. رمز الخطأ: \${response.status}\`);
                 gameData = await response.json();
-                
                 if (!Array.isArray(gameData) || gameData.length === 0) {
-                     gameStatusEl.textContent = '⚠️ ملف الأسئلة فارغ أو بصيغة غير صحيحة. يرجى مراجعة محتوى ملف questions.json الذي رفعته.';
-                     showAlert('ملف الأسئلة فارغ أو بصيغة غير صحيحة. يرجى مراجعة محتوى ملف questions.json.');
-                     return;
+                    throw new Error('ملف الأسئلة فارغ أو بصيغة غير صحيحة.');
                 }
-                gameData.forEach(q => q.answers.forEach(a => a.revealed = false));
+                gameData.forEach(q => q.answers.forEach(a => a.revealed = false)); // Reset revealed state
                 displayQuestionSelectionButtons();
-                gameStatusEl.textContent = '✅ تم تحميل الأسئلة بنجاح! اختر سؤالاً من القائمة أدناه.';
+                gameStatusEl.textContent = '✅ تم تحميل الأسئلة! اختر سؤالاً:';
+                document.getElementById('questionSelectionArea').classList.remove('hidden');
             } catch (error) {
                 console.error('Error loading game questions:', error);
                 gameStatusEl.textContent = \`❌ خطأ: \${error.message}\`;
-                showAlert(\`حدث خطأ أثناء تحميل الأسئلة: \${error.message}\nتأكد من أنك قمت برفع ملف 'questions.json' بشكل صحيح إلى GitHub Pages.\`);
+                showAlert(\`حدث خطأ أثناء تحميل الأسئلة: \${error.message}\nتأكد من رفع ملف 'questions.json' بشكل صحيح.\`);
+                initialScreen.classList.remove('hidden');
+                gameStatusEl.classList.add('hidden');
+            }
+        }
+
+        function highlightActiveQuestionButton() {
+            document.querySelectorAll('#gameQuestionsList button').forEach(btn => {
+                btn.classList.remove('active-question-btn');
+            });
+            if (currentLoadedQuestionIndex !== -1) {
+                const activeBtn = document.querySelector(\`#gameQuestionsList button[data-qindex="\${currentLoadedQuestionIndex}"]\`);
+                if (activeBtn) {
+                    activeBtn.classList.add('active-question-btn');
+                }
             }
         }
 
         function displayQuestionSelectionButtons() {
             const listDiv = document.getElementById('gameQuestionsList');
-            listDiv.innerHTML = ''; 
-            gameData.forEach((question, index) => {
+            listDiv.innerHTML = '';
+            gameData.forEach((q, index) => {
                 const button = document.createElement('button');
-                button.textContent = \`السؤال رقم \${index + 1}\`;
+                button.textContent = \`\${index + 1}\`;
+                button.dataset.qindex = index; // Store index for highlighting
                 button.onclick = () => selectGameQuestion(index);
                 listDiv.appendChild(button);
             });
-            document.getElementById('questionSelectionArea').classList.remove('hidden');
+            highlightActiveQuestionButton(); // Highlight if a question was already selected
         }
 
         function selectGameQuestion(index) {
             if (index < 0 || index >= gameData.length) return;
-            
-            currentLoadedQuestion = JSON.parse(JSON.stringify(gameData[index])); 
-            currentLoadedQuestion.answers.sort((a,b) => b.points - a.points);
+
+            currentLoadedQuestionIndex = index; // Store the selected question index
+            currentLoadedQuestion = JSON.parse(JSON.stringify(gameData[index]));
+             // Answers are already sorted by points (عدد المجيبين) during admin input
             currentQuestionTotalScore = 0;
 
+            document.getElementById('currentQuestionTitle').textContent = \`السؤال رقم \${index + 1}\`;
             document.getElementById('currentQuestionText').textContent = currentLoadedQuestion.question;
-            const answersArea = document.getElementById('answersArea');
-            answersArea.innerHTML = ''; 
+            const answerColumnLeft = document.getElementById('answerColumnLeft');
+            const answerColumnRight = document.getElementById('answerColumnRight');
+            answerColumnLeft.innerHTML = '';
+            answerColumnRight.innerHTML = '';
 
             currentLoadedQuestion.answers.forEach((ans, ansIndex) => {
                 const answerSlot = document.createElement('div');
                 answerSlot.classList.add('answer-slot');
-                answerSlot.dataset.index = ansIndex; 
-                
+                answerSlot.dataset.index = ansIndex;
                 const rankSpan = document.createElement('span');
-                rankSpan.textContent = \`\${ansIndex + 1}\`; // Just the number for rank
-                rankSpan.classList.add('rank'); 
-
+                rankSpan.textContent = \`\${ansIndex + 1}\`; // This is the display order
+                rankSpan.classList.add('rank');
                 const textSpan = document.createElement('span');
-                textSpan.textContent = `[ اضغط للكشف عن الإجابة ]`; 
+                textSpan.textContent = \`[ اضغط للكشف ]\`;
                 textSpan.classList.add('text');
-
                 const pointsSpan = document.createElement('span');
-                pointsSpan.classList.add('points'); 
-                pointsSpan.textContent = \`\${ans.points}\`; // Just points number
-
-                answerSlot.appendChild(rankSpan);
-                answerSlot.appendChild(textSpan); 
+                pointsSpan.classList.add('points');
+                pointsSpan.textContent = \`\${ans.points}\`; // "عدد المجيبين" is the points
+                pointsSpan.classList.add('hidden');
                 answerSlot.appendChild(pointsSpan);
-                pointsSpan.classList.add('hidden'); // Points are hidden initially with the answer
-
-                if (ans.revealed) { 
+                answerSlot.appendChild(textSpan);
+                answerSlot.appendChild(rankSpan);
+                if (ans.revealed) {
                     answerSlot.classList.add('revealed');
                     textSpan.textContent = ans.text;
                     pointsSpan.classList.remove('hidden');
@@ -791,56 +822,55 @@
                 } else {
                     answerSlot.onclick = () => revealGameAnswer(ansIndex);
                 }
-                answersArea.appendChild(answerSlot);
+                if (ansIndex < 5) answerColumnLeft.appendChild(answerSlot);
+                else answerColumnRight.appendChild(answerSlot);
             });
 
-            document.getElementById('questionSelectionArea').classList.add('hidden'); 
-            document.getElementById('questionDisplayArea').classList.remove('hidden'); 
-            document.getElementById('totalScoreArea').classList.remove('hidden'); 
+            document.getElementById('questionSelectionArea').classList.add('hidden');
+            document.getElementById('questionDisplayArea').classList.remove('hidden');
+            document.getElementById('totalScoreArea').classList.remove('hidden');
             updateCurrentQuestionScoreDisplay();
+            highlightActiveQuestionButton(); // Highlight the button for this question
         }
 
         function revealGameAnswer(answerIndex) {
             if (!currentLoadedQuestion || answerIndex < 0 || answerIndex >= currentLoadedQuestion.answers.length) return;
-            
             const answer = currentLoadedQuestion.answers[answerIndex];
-            if (answer.revealed) return; 
-
-            answer.revealed = true; 
+            if (answer.revealed) return;
+            answer.revealed = true;
             currentQuestionTotalScore += answer.points;
-
-            const answerSlot = document.querySelector(\`#answersArea .answer-slot[data-index="\${answerIndex}"]\`);
+            const answerSlot = document.querySelector(\`#answersBoard .answer-slot[data-index="\${answerIndex}"]\`);
             if (answerSlot) {
                 answerSlot.classList.add('revealed');
-                answerSlot.querySelector('.text').textContent = answer.text; 
-                answerSlot.querySelector('.points').classList.remove('hidden'); 
-                answerSlot.onclick = null; 
+                answerSlot.querySelector('.text').textContent = answer.text;
+                answerSlot.querySelector('.points').classList.remove('hidden');
+                answerSlot.onclick = null;
             }
             updateCurrentQuestionScoreDisplay();
         }
-        
+
         function returnToQuestionSelection() {
             document.getElementById('questionDisplayArea').classList.add('hidden');
             document.getElementById('totalScoreArea').classList.add('hidden');
             document.getElementById('questionSelectionArea').classList.remove('hidden');
-            document.getElementById('gameStatus').textContent = 'اختر سؤالاً آخر أو أعد تحميل الأسئلة إذا لزم الأمر.';
-            currentLoadedQuestion = null; 
+            document.getElementById('gameStatus').textContent = 'اختر سؤالاً آخر أو أعد تحميل الأسئلة.';
+            // currentLoadedQuestionIndex remains to keep the last selected button highlighted
+            highlightActiveQuestionButton();
         }
 
         function updateCurrentQuestionScoreDisplay() {
             document.getElementById('currentQuestionScore').textContent = currentQuestionTotalScore;
         }
 
-        // --- Initial Setup ---
+        // Initial Setup
         document.addEventListener('DOMContentLoaded', () => {
             const adminH3 = document.getElementById('adminAnswersHeader');
-            if(adminH3) { 
-                 adminH3.textContent = \`الإجابات والنقاط (بحد أقصى \${MAX_ANSWERS_PER_QUESTION} إجابات):\`;
-            }
-            showPage('gamePage'); // Default to game page on load
-            loadFromLocalStorage(); 
+            if(adminH3) adminH3.textContent = \`الإجابات وعدد المجيبين (بحد أقصى \${MAX_ANSWERS_PER_QUESTION} إجابات):\`;
+            const gameTitle = document.querySelector('h1.game-title');
+            if(gameTitle) gameTitle.setAttribute('data-text', gameTitle.textContent);
+            showPage('gamePage');
+            loadFromLocalStorage();
         });
-
     </script>
 </body>
 </html>
