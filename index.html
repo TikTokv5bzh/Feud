@@ -1,876 +1,679 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة فاميلي فيود</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Almarai:wght@700;800&family=Roboto+Slab:wght@700;900&display=swap" rel="stylesheet">
+    <title>لعبة المافيا</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --feud-bg: #0f1a3a;
-            --feud-primary: #1e376b;
-            --feud-secondary: #2a5298;
-            --feud-accent: #ffd700;
-            --feud-text-light: #f0f0f0;
-            --feud-text-dark: #111111;
-            --feud-revealed-bg: #ffcc00;
-            --feud-revealed-text: #000000;
-            --feud-hidden-bg: #1c3d7e;
-            --feud-hidden-text: #a0b8e0;
-            --feud-title-font: 'Roboto Slab', 'Cairo', serif;
-        }
-
         body {
-            font-family: 'Almarai', 'Cairo', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--feud-bg);
-            color: var(--feud-text-light);
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            direction: rtl; /* Set text direction to right-to-left for Arabic */
         }
-
-        .top-nav-buttons {
-            width: 100%;
-            background-color: var(--feud-primary);
-            padding: 10px 0;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        /* Custom scrollbar for player list */
+        .player-list-container::-webkit-scrollbar {
+            width: 8px;
         }
-        .top-nav-buttons button {
-            background-color: var(--feud-accent);
-            color: var(--feud-text-dark);
-            border: none;
-            padding: 10px 20px;
-            margin: 5px 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease;
+        .player-list-container::-webkit-scrollbar-track {
+            background: #2d3748; /* bg-gray-800 */
+            border-radius: 10px;
         }
-        .top-nav-buttons button:hover {
-            background-color: #ffec80;
-            transform: translateY(-1px);
+        .player-list-container::-webkit-scrollbar-thumb {
+            background: #4a5568; /* bg-gray-700 */
+            border-radius: 10px;
         }
-        .top-nav-buttons button.active-nav {
-             background-color: #fff;
-             color: var(--feud-primary);
-             box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        .player-list-container::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0; /* bg-gray-400 */
         }
-
-        .container {
-            width: 100%;
-            max-width: 950px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: var(--feud-secondary);
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        textarea {
+            resize: vertical; /* Allow vertical resizing for textarea */
         }
-        .page {
+        /* Style for disabled/excluded players */
+        .excluded-player {
+            opacity: 0.5;
+            text-decoration: line-through;
+            pointer-events: none; /* Disable click events on excluded players */
+        }
+        /* Hide exclusion buttons by default */
+        .exclusion-buttons {
             display: none;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 10px;
-            animation: fadeIn 0.5s ease-in-out;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .active-page {
-            display: block;
-        }
-
-        button {
-            padding: 12px 22px;
-            margin: 10px 5px;
-            background-color: var(--feud-accent);
-            color: var(--feud-text-dark);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Almarai', 'Cairo', sans-serif;
-            font-weight: bold;
-            font-size: 1em;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-        }
-        button:hover {
-            background-color: #ffe066;
-            transform: translateY(-1px);
-        }
-        button:active {
-            transform: translateY(0px);
-        }
-
-        button.secondary { background-color: #5c6ac4; color: var(--feud-text-light); }
-        button.secondary:hover { background-color: #4a55a0; }
-        button.danger { background-color: #e74c3c; color: var(--feud-text-light); }
-        button.danger:hover { background-color: #c0392b; }
-        button.success { background-color: #2ecc71; color: var(--feud-text-light); }
-        button.success:hover { background-color: #27ae60; }
-        button.info { background-color: #3498db; color: var(--feud-text-light); }
-        button.info:hover { background-color: #2980b9; }
-
-        input[type="text"], input[type="number"] {
-            padding: 12px;
-            margin: 8px 0;
-            border: 2px solid var(--feud-primary);
-            background-color: #f0f8ff;
-            color: var(--feud-text-dark);
-            border-radius: 8px;
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 1em;
-            font-family: 'Almarai', 'Cairo', sans-serif;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        input[type="text"]:focus, input[type="number"]:focus {
-            border-color: var(--feud-accent);
-            box-shadow: 0 0 0 0.2rem rgba(255,215,0,.35);
-            outline: none;
-        }
-        .answer-input-group {
+        /* Show exclusion buttons when parent is active (clicked) */
+        .player-game-item.active .exclusion-buttons {
             display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            gap: 12px;
-            background-color: var(--feud-primary);
-            padding: 10px;
-            border-radius: 6px;
         }
-        .answer-input-group input[type="text"] { flex-grow: 1; }
-        .answer-input-group input[type="number"] { width: 120px; text-align: center; } /* Wider for "عدد المجيبين" */
-
-        h1, h2, h3 {
-            color: var(--feud-accent);
-            text-align: center;
-            margin-bottom: 20px;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 900;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        }
-        h1.game-title {
-            font-family: var(--feud-title-font);
-            font-size: 3.5em;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            color: #FFF;
-            background: linear-gradient(180deg, #fdf54d 0%, #fbcb1a 50%, #f09819 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            /* text-fill-color: transparent; */ /* Commented out for wider browser compatibility if needed */
-            position: relative;
-            padding: 10px 20px;
-            display: inline-block;
-            text-shadow:
-                -1px -1px 0 #6b4209,
-                 1px -1px 0 #6b4209,
-                -1px  1px 0 #6b4209,
-                 1px  1px 0 #6b4209,
-                 3px 3px 0px rgba(0,0,0,0.5);
-        }
-        h1.game-title::before {
-            content: attr(data-text);
-            position: absolute;
-            left: 0;
-            top: 0;
-            z-index: -1;
-            background: linear-gradient(180deg, #e4bc0d 0%, #d48d0a 50%, #c07009 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            /* text-fill-color: transparent; */
-            transform: translate(2px, 2px);
-            text-shadow: none;
-        }
-
-        h2 { font-size: 2em; }
-        h3 { font-size: 1.6em; }
-
-        hr {
-            border: 0;
-            height: 2px;
-            background-image: linear-gradient(to right, transparent, var(--feud-accent), transparent);
-            margin: 30px 0;
-        }
-
-        #gameQuestionsList {
-            text-align: center;
-            padding: 15px 0;
-        }
-        #gameQuestionsList button {
-            display: inline-block;
-            margin: 10px;
-            width: 60px;
-            height: 60px;
-            padding: 0;
-            font-size: 1.5em;
-            background-color: var(--feud-accent);
-            color: var(--feud-text-dark);
-            border: 3px solid var(--feud-text-dark);
-            box-shadow: 3px 3px 0px var(--feud-text-dark);
-            line-height: 54px;
-            text-align: center;
-        }
-        #gameQuestionsList button.active-question-btn { /* Style for the currently selected question button */
-            background-color: var(--feud-primary) !important;
-            color: var(--feud-accent) !important;
-            border-color: var(--feud-accent) !important;
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.3), 1px 1px 0px var(--feud-accent);
-            transform: translate(1px, 1px);
-        }
-         #gameQuestionsList button:hover:not(.active-question-btn) {
-            background-color: #ffe066;
-            box-shadow: 1px 1px 0px var(--feud-text-dark);
-            transform: translate(2px, 2px);
-         }
-
-        #questionDisplay {
-            margin-top: 25px;
-            padding: 30px;
-            background-color: var(--feud-primary);
-            border-radius: 15px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
-        }
-        #currentQuestionTitle { /* For displaying "السؤال رقم X" */
-            font-size: 1.5em;
-            color: var(--feud-accent);
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        #currentQuestionText {
-            font-size: 2em;
-            font-weight: 800;
-            margin-bottom: 30px;
-            color: var(--feud-text-light);
-            text-align: center;
-            padding: 15px;
-            background-color: rgba(0,0,0,0.2);
-            border-radius: 10px;
-        }
-
-        #answersBoard {
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-start;
-            gap: 20px;
-        }
-        .answer-column {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        #answersBoard .answer-slot {
-            background-color: var(--feud-hidden-bg);
-            color: var(--feud-hidden-text);
-            padding: 18px 15px;
-            border-radius: 10px;
-            border: 3px solid var(--feud-accent);
-            cursor: pointer;
-            text-align: right;
-            transition: background-color 0.4s ease, color 0.4s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            font-size: 1.3em;
-            font-weight: bold;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-            position: relative;
-            display: flex;
-            align-items: center;
-            min-height: 60px;
-        }
-        #answersBoard .answer-slot:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
-        }
-        #answersBoard .answer-slot.revealed {
-            background-color: var(--feud-revealed-bg);
-            color: var(--feud-revealed-text);
-            border-color: var(--feud-text-dark);
-            cursor: default;
-        }
-        #answersBoard .answer-slot .rank { /* This will now display the order number */
-            background-color: rgba(0,0,0,0.2);
-            color: var(--feud-text-light);
-            padding: 5px 10px;
-            border-radius: 50%;
-            font-size: 0.8em;
-            min-width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 10px;
-        }
-        #answersBoard .answer-slot.revealed .rank {
-            background-color: var(--feud-text-dark);
-            color: var(--feud-revealed-bg);
-        }
-        #answersBoard .answer-slot .text {
-            flex-grow: 1;
-            text-align: right;
-        }
-        #answersBoard .answer-slot .points { /* This will display "عدد المجيبين" as points */
-            font-size: 0.9em;
-            opacity: 1; /* Make it fully visible when revealed */
-            background-color: var(--feud-text-dark); /* Dark background for points */
-            color: var(--feud-accent); /* Gold text for points */
-            padding: 5px 10px;
-            border-radius: 6px;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        /* No specific style for .revealed .points as it's always shown this way when revealed */
-
-
-        .hidden { display: none !important; }
-
-        #currentQuestionsList ul { list-style-type: none; padding: 0; }
-        #currentQuestionsList li {
-            background-color: var(--feud-primary);
-            border: 1px solid var(--feud-accent);
-            color: var(--feud-text-light);
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            font-size: 1em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #currentQuestionsList li .question-text {
-            flex-grow: 1;
-        }
-        #currentQuestionsList li .delete-btn {
-            background-color: #e74c3c;
-            color: var(--feud-text-light);
-            padding: 5px 10px;
-            font-size: 0.8em;
-            margin-right: 0;
-        }
-        #currentQuestionsList li .delete-btn:hover {
-            background-color: #c0392b;
-        }
-
-        #adminPage label {
-            font-weight: bold;
-            display: block;
-            margin-top: 12px;
-            margin-bottom: 6px;
-            color: var(--feud-accent);
-        }
-
-        #gameStatus {
-            text-align: center;
-            font-size: 1.1em;
-            color: var(--feud-text-light);
-            margin: 20px 0;
-            padding: 12px;
-            background-color: var(--feud-primary);
-            border-radius: 6px;
-            border: 1px solid var(--feud-accent);
-        }
-
-        #totalScoreArea {
-            text-align: center;
-            font-size: 1.8em;
-            font-weight: bold;
-            margin-top: 30px;
-            padding: 20px;
-            background-color: var(--feud-accent);
-            color: var(--feud-text-dark);
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            border: 3px solid var(--feud-text-dark);
-        }
-        .info-box {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: rgba(255, 215, 0, 0.1);
-            border: 1px solid var(--feud-accent);
-            color: var(--feud-text-light);
-            border-radius: 6px;
-        }
-        .info-box strong { color: var(--feud-accent); }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7);
-            animation: fadeInModal 0.3s ease-out;
-        }
-        @keyframes fadeInModal {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .modal-content {
-            background-color: var(--feud-secondary);
-            color: var(--feud-text-light);
-            margin: 15% auto;
-            padding: 30px;
-            border: 2px solid var(--feud-accent);
-            width: 80%;
-            max-width: 500px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-            animation: slideInModal 0.3s ease-out;
-        }
-        @keyframes slideInModal {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .modal-buttons button {
-            margin: 10px;
-        }
-
     </style>
 </head>
-<body>
-    <div class="top-nav-buttons">
-        <button id="navAdminButton" onclick="showPage('adminPage')">📝 صفحة تسجيل الأسئلة</button>
-        <button id="navGameButton" onclick="showPage('gamePage')">🎮 صفحة اللعبة الرئيسية</button>
-    </div>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+    <div class="bg-gray-800 p-6 sm:p-8 md:p-10 rounded-xl shadow-lg w-full max-w-md flex flex-col space-y-6">
+        <h1 class="text-3xl font-bold text-center text-red-400 mb-6">لعبة المافيا</h1>
 
-    <div class="container">
-        <h1 class="game-title" data-text="فاميلي فيود">فاميلي فيود</h1>
+        <!-- Setup Section -->
+        <div id="setup-section" class="space-y-6">
+            <!-- Player Names Input (Textarea) -->
+            <div class="flex flex-col gap-3">
+                <label for="playerNamesInput" class="text-lg text-red-200">أدخل أسماء اللاعبين (كل اسم في سطر):</label>
+                <textarea id="playerNamesInput" rows="6" placeholder="مثال:&#10;أحمد&#10;فاطمة&#10;محمد&#10;ليلى"
+                    class="bg-gray-700 text-white placeholder-gray-400 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"></textarea>
+                <button id="setPlayersButton"
+                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    تأكيد الأسماء
+                </button>
+            </div>
 
-        <div id="adminPage" class="page">
-            <h2>تسجيل أسئلة فاميلي فيود</h2>
+            <!-- Player List Display in Table -->
             <div>
-                <label for="questionText">السؤال:</label>
-                <input type="text" id="questionText" placeholder="أدخل نص السؤال هنا">
-            </div>
-            <hr>
-            <h3 id="adminAnswersHeader">الإجابات وعدد المجيبين (النقاط):</h3>
-            <div id="answersInputContainer">
-                </div>
-            <button onclick="addAnswerField()" class="secondary">➕ إضافة حقل إجابة</button>
-            <button onclick="removeLastAnswerField()" class="secondary">➖ حذف آخر حقل إجابة</button>
-            <hr>
-            <button onclick="addQuestionToList()" class="success">➕ إضافة السؤال للقائمة الحالية</button>
-            <button onclick="saveQuestionsToFile()" class="info">💾 حفظ كل الأسئلة (تحميل ملف JSON)</button>
-            <hr>
-            <button onclick="loadFromLocalStorage()" class="secondary">🔄 تحميل الأسئلة المحفوظة مؤقتاً</button>
-            <button onclick="clearLocalStorage()" class="danger">🗑️ مسح الأسئلة المحفوظة مؤقتاً</button>
-
-            <h2>الأسئلة المضافة حالياً (قبل الحفظ في ملف):</h2>
-            <div id="currentQuestionsList"><p>لم تتم إضافة أي أسئلة بعد.</p></div>
-            <div class="info-box">
-                <strong>⚠️ ملاحظة هامة:</strong> عند إدخال الإجابات، الرقم الذي تدخله في حقل "عدد المجيبين" هو نفسه النقاط التي سيحصل عليها اللاعب عند كشف الإجابة.
-                <br>بعد الضغط على "حفظ كل الأسئلة"، سيتم تحميل ملف باسم <code>questions.json</code>.
-                يجب عليك <strong style="color: #ff4d4d;">رفع هذا الملف إلى مستودع GitHub Pages</strong> في نفس المجلد الذي يوجد به هذا الملف الـ HTML لكي تظهر الأسئلة في صفحة اللعبة.
-            </div>
-        </div>
-
-        <div id="gamePage" class="page">
-            <div id="initialGameScreen">
-                 <h2>مرحباً بك في فاميلي فيود!</h2>
-                 <p style="text-align:center; font-size: 1.1em;">اضغط على الزر أدناه لتحميل الأسئلة والبدء.</p>
-                 <div style="text-align:center;">
-                    <button onclick="loadGameQuestions()" class="info" style="font-size: 1.2em; padding: 15px 30px;">🚀 تحميل الأسئلة</button>
-                 </div>
-            </div>
-            <div id="gameStatus" class="hidden"></div>
-
-            <div id="questionSelectionArea" class="hidden">
-                <h3>اختر سؤالاً للبدء:</h3>
-                <div id="gameQuestionsList">
-                    </div>
-            </div>
-
-            <div id="questionDisplayArea" class="hidden">
-                <h3 id="currentQuestionTitle"></h3> <h2 id="currentQuestionText"></h2> <div id="answersBoard">
-                    <div class="answer-column" id="answerColumnLeft"></div>
-                    <div class="answer-column" id="answerColumnRight"></div>
-                </div>
-                <div style="text-align: center; margin-top: 20px;">
-                     <button onclick="returnToQuestionSelection()" class="secondary">العودة لاختيار الأسئلة</button>
+                <h2 class="text-xl font-semibold mb-3 text-red-300">اللاعبون (<span id="playerCount">0</span>):</h2>
+                <div class="player-list-container bg-gray-700 p-4 rounded-lg max-h-48 overflow-y-auto">
+                    <table class="w-full text-white table-auto">
+                        <thead>
+                            <tr class="text-gray-400 border-b border-gray-600">
+                                <th class="py-2 text-right">الاسم</th>
+                                <th class="py-2 text-left w-20"></th> <!-- For delete button -->
+                            </tr>
+                        </thead>
+                        <tbody id="playerListTableBody">
+                            <!-- Player rows will be appended here -->
+                        </tbody>
+                    </table>
+                    <p class="text-gray-400 text-center py-4" id="noPlayersMessage">لا يوجد لاعبون مضافون بعد.</p>
                 </div>
             </div>
 
-            <div id="totalScoreArea" class="hidden">
-                مجموع النقاط للسؤال الحالي: <span id="currentQuestionScore">0</span>
+            <!-- Role Configuration -->
+            <div class="grid grid-cols-2 gap-4 text-red-200">
+                <div class="flex flex-col">
+                    <label for="mafiaCount" class="mb-1 text-lg">المافيا:</label>
+                    <input type="number" id="mafiaCount" min="0" value="1"
+                        class="bg-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
+                </div>
+                <div class="flex flex-col">
+                    <label for="elderCount" class="mb-1 text-lg">الشايب:</label>
+                    <input type="number" id="elderCount" min="0" value="0"
+                        class="bg-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
+                </div>
+                <div class="flex flex-col">
+                    <label for="doctorCount" class="mb-1 text-lg">الدكتور:</label>
+                    <input type="number" id="doctorCount" min="0" value="0"
+                        class="bg-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
+                </div>
+                <div class="flex flex-col">
+                    <label for="citizenCount" class="mb-1 text-lg">المواطن:</label>
+                    <input type="number" id="citizenCount" min="0" value="0" readonly
+                        class="bg-gray-700 text-gray-400 p-2 rounded-lg cursor-not-allowed">
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content">
-            <p id="modalMessage"></p>
-            <div class="modal-buttons">
-                <button id="modalConfirmButton" class="danger">نعم</button>
-                <button id="modalCancelButton" class="secondary">إلغاء</button>
-            </div>
+            <!-- Start Game Button -->
+            <button id="startGameButton"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                بدء اللعبة
+            </button>
         </div>
-    </div>
-    <div id="alertModal" class="modal">
-        <div class="modal-content">
-            <p id="alertMessage"></p>
-            <div class="modal-buttons">
-                <button id="alertOkButton" class="info">موافق</button>
+
+        <!-- Organizer Roles Overview Section (New Section) -->
+        <div id="organizer-roles-overview-section" class="hidden flex flex-col items-center justify-center space-y-6 min-h-[250px]">
+            <h2 class="text-2xl sm:text-3xl font-bold text-red-300">نظرة عامة على الأدوار (للمنظم)</h2>
+            <p class="text-md text-gray-400 text-center">يمكنك خلط القائمة عدة مرات. عند الانتهاء، اضغط على المتابعة.</p>
+            <div id="rolesOverviewList" class="w-full bg-gray-700 p-4 rounded-lg max-h-60 overflow-y-auto space-y-2">
+                <!-- Roles will be displayed here dynamically -->
+            </div>
+            <button id="shuffleRolesDisplayButton"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-full">
+                عرض الأدوار عشوائياً
+            </button>
+            <button id="proceedToGameplayButton"
+                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-full">
+                المتابعة إلى اللعب
+            </button>
+        </div>
+
+        <!-- Gameplay Section (Initially Hidden) -->
+        <div id="gameplay-section" class="hidden flex flex-col items-center justify-center space-y-6 min-h-[250px]">
+            <h2 class="text-xl sm:text-2xl font-bold text-red-300">اللاعبون:</h2>
+            <!-- Changed grid-cols-1 to grid-cols-2 to always show two names per row -->
+            <div id="activePlayersGrid" class="w-full grid grid-cols-2 gap-4 max-h-80 overflow-y-auto p-2">
+                <!-- Active player boxes will be appended here -->
+            </div>
+            <p id="gameStatusMessage" class="text-lg text-red-200 mt-4"></p>
+        </div>
+
+        <!-- Game Over Section (Initially Hidden) -->
+        <div id="game-over-section" class="hidden flex flex-col items-center justify-center space-y-6">
+            <p id="finalGameResultMessage" class="text-3xl font-bold text-center text-red-500"></p>
+            <h2 class="text-xl font-semibold text-red-300">نتائج اللعبة النهائية:</h2>
+            <div id="finalPlayersRoles" class="w-full bg-gray-700 p-4 rounded-lg max-h-60 overflow-y-auto text-center">
+                <!-- Final player roles will be displayed here -->
+            </div>
+            <button id="resetGameButton"
+                class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-6">
+                إعادة اللعب بالكامل
+            </button>
+        </div>
+
+
+        <!-- Custom Message Box -->
+        <div id="messageBox"
+            class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div class="bg-gray-700 p-6 rounded-xl shadow-lg flex flex-col items-center space-y-4">
+                <p id="messageText" class="text-white text-lg text-center"></p>
+                <button id="closeMessageBox"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-lg transition duration-200">
+                    موافق
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Global state variables
-        let adminQuestions = [];
-        let gameData = [];
-        let currentLoadedQuestionIndex = -1; // To track the index of the current question
-        let currentLoadedQuestion = null;
-        let currentQuestionTotalScore = 0;
-        const MAX_ANSWERS_PER_QUESTION = 10;
-        const DEFAULT_ANSWER_FIELDS = 5; // Default to 5 answer fields in admin
+        // DOM Elements
+        const playerNamesInput = document.getElementById('playerNamesInput');
+        const setPlayersButton = document.getElementById('setPlayersButton');
+        const playerListTableBody = document.getElementById('playerListTableBody'); // For setup phase
+        const playerCountSpan = document.getElementById('playerCount');
+        const noPlayersMessage = document.getElementById('noPlayersMessage');
 
-        // Modal Logic (same as before)
-        const confirmationModal = document.getElementById('confirmationModal');
-        const alertModal = document.getElementById('alertModal');
-        const modalMessage = document.getElementById('modalMessage');
-        const alertMsgEl = document.getElementById('alertMessage');
-        const modalConfirmButton = document.getElementById('modalConfirmButton');
-        const modalCancelButton = document.getElementById('modalCancelButton');
-        const alertOkButton = document.getElementById('alertOkButton');
-        const navAdminButton = document.getElementById('navAdminButton');
-        const navGameButton = document.getElementById('navGameButton');
-        let confirmCallback = null;
+        const mafiaCountInput = document.getElementById('mafiaCount');
+        const elderCountInput = document.getElementById('elderCount');
+        const doctorCountInput = document.getElementById('doctorCount');
+        const citizenCountInput = document.getElementById('citizenCount');
 
-        function showAlert(message) {
-            alertMsgEl.textContent = message;
-            alertModal.style.display = 'block';
+        const startGameButton = document.getElementById('startGameButton');
+        const resetGameButton = document.getElementById('resetGameButton');
+
+        const setupSection = document.getElementById('setup-section');
+        // Removed roleRevealSection as it's no longer used
+        // const roleRevealSection = document.getElementById('role-reveal-section');
+        // const currentPlayerNameDisplay = document.getElementById('currentPlayerName');
+        // const showRoleButton = document.getElementById('showRoleButton');
+        // const currentPlayerRoleDisplay = document.getElementById('currentPlayerRole');
+        // const nextPlayerButton = document.getElementById('nextPlayerButton');
+
+        // New elements for Organizer Roles Overview
+        const organizerRolesOverviewSection = document.getElementById('organizer-roles-overview-section');
+        const rolesOverviewList = document.getElementById('rolesOverviewList');
+        const shuffleRolesDisplayButton = document.getElementById('shuffleRolesDisplayButton');
+        const proceedToGameplayButton = document.getElementById('proceedToGameplayButton');
+
+
+        const gameplaySection = document.getElementById('gameplay-section');
+        const activePlayersGrid = document.getElementById('activePlayersGrid'); // Changed to grid for player boxes
+        const gameStatusMessage = document.getElementById('gameStatusMessage');
+        // Removed noActivePlayersMessage as its logic will be handled by checking activePlayersGrid.children.length
+
+        const gameOverSection = document.getElementById('game-over-section');
+        const finalGameResultMessage = document.getElementById('finalGameResultMessage');
+        const finalPlayersRoles = document.getElementById('finalPlayersRoles');
+
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const closeMessageBox = document.getElementById('closeMessageBox');
+
+
+        // Game State Variables
+        let players = []; // Stores initial player names
+        // assignedRoles stores { name: "Player", role: "Mafia", isExcluded: false } objects for the current game
+        let assignedRoles = [];
+        // currentPlayerIndex and isRoleRevealed are no longer needed for the new flow
+        // let currentPlayerIndex = 0;
+        // let isRoleRevealed = false;
+
+        // Role mapping for display
+        const roleNames = {
+            'Mafia': 'المافيا 🐺',
+            'Elder': 'الشايب 👴',
+            'Doctor': 'الدكتور 👩‍⚕️',
+            'Citizen': 'المواطن 🧑‍🤝‍🧑'
+        };
+
+        // --- Local Storage Management ---
+
+        /**
+         * Saves player names and role settings to local storage.
+         */
+        function saveGameData() {
+            localStorage.setItem('mafiaPlayers', JSON.stringify(players));
+            const settings = {
+                mafia: parseInt(mafiaCountInput.value) || 0,
+                elder: parseInt(elderCountInput.value) || 0,
+                doctor: parseInt(doctorCountInput.value) || 0
+            };
+            localStorage.setItem('mafiaSettings', JSON.stringify(settings));
         }
-        alertOkButton.onclick = function() { alertModal.style.display = 'none'; }
-        function showConfirmation(message, callback) {
-            modalMessage.textContent = message;
-            confirmCallback = callback;
-            confirmationModal.style.display = 'block';
-        }
-        modalConfirmButton.onclick = function() {
-            confirmationModal.style.display = 'none';
-            if (confirmCallback) confirmCallback(true);
-        }
-        modalCancelButton.onclick = function() {
-            confirmationModal.style.display = 'none';
-            if (confirmCallback) confirmCallback(false);
-        }
-        window.onclick = function(event) {
-            if (event.target == confirmationModal) {
-                confirmationModal.style.display = "none";
-                if (confirmCallback) confirmCallback(false);
+
+        /**
+         * Loads player names and role settings from local storage.
+         */
+        function loadGameData() {
+            const savedPlayers = localStorage.getItem('mafiaPlayers');
+            if (savedPlayers) {
+                players = JSON.parse(savedPlayers);
+                playerNamesInput.value = players.join('\n'); // Populate textarea with loaded names
             }
-            if (event.target == alertModal) {
-                alertModal.style.display = "none";
+
+            const savedSettings = localStorage.getItem('mafiaSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                mafiaCountInput.value = settings.mafia;
+                elderCountInput.value = settings.elder;
+                doctorCountInput.value = settings.doctor;
+            }
+            renderPlayers(); // Render players after loading
+            updateCitizenCount(); // Update citizen count based on loaded settings and players
+        }
+
+        // --- Helper Functions ---
+
+        /**
+         * Shuffles an array in place (Fisher-Yates algorithm).
+         * @param {Array} array The array to shuffle.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
             }
         }
 
-        // Page Navigation
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active-page'));
-            const targetPage = document.getElementById(pageId);
-            if (targetPage) targetPage.classList.add('active-page');
-
-            navAdminButton.classList.remove('active-nav');
-            navGameButton.classList.remove('active-nav');
-            if (pageId === 'adminPage') navAdminButton.classList.add('active-nav');
-            else if (pageId === 'gamePage') navGameButton.classList.add('active-nav');
-
-            if (pageId === 'adminPage') {
-                renderAdminQuestionsList();
-                const answersContainer = document.getElementById('answersInputContainer');
-                if (answersContainer.childElementCount === 0) {
-                    for(let i = 0; i < DEFAULT_ANSWER_FIELDS; i++) addAnswerField();
-                }
-            } else if (pageId === 'gamePage') {
-                if (gameData.length === 0) {
-                    document.getElementById('initialGameScreen').classList.remove('hidden');
-                    document.getElementById('questionSelectionArea').classList.add('hidden');
-                    document.getElementById('gameStatus').classList.add('hidden');
-                } else {
-                    document.getElementById('initialGameScreen').classList.add('hidden');
-                    document.getElementById('questionSelectionArea').classList.remove('hidden');
-                    document.getElementById('gameStatus').classList.remove('hidden');
-                    document.getElementById('gameStatus').textContent = 'اختر سؤالاً من القائمة أدناه.';
-                    highlightActiveQuestionButton(); // Highlight if a question was previously selected
-                }
-            }
+        /**
+         * Displays a custom message box instead of alert.
+         * @param {string} message The message to display.
+         */
+        function showMessageBox(message) {
+            messageText.textContent = message;
+            messageBox.classList.remove('hidden');
         }
 
-        // Admin Page Logic
-        function addAnswerField() {
-            const container = document.getElementById('answersInputContainer');
-            if (container.childElementCount >= MAX_ANSWERS_PER_QUESTION) {
-                showAlert(\`لا يمكن إضافة أكثر من \${MAX_ANSWERS_PER_QUESTION} إجابات لكل سؤال.\`);
+        /**
+         * Hides the custom message box.
+         */
+        function hideMessageBox() {
+            messageBox.classList.add('hidden');
+        }
+
+        // --- Player Management (Setup Phase) ---
+
+        /**
+         * Renders the current list of players in the UI table.
+         */
+        function renderPlayers() {
+            playerListTableBody.innerHTML = ''; // Clear existing list
+            if (players.length === 0) {
+                noPlayersMessage.classList.remove('hidden');
+            } else {
+                noPlayersMessage.classList.add('hidden');
+                players.forEach((player, index) => {
+                    const row = playerListTableBody.insertRow();
+                    row.className = 'border-b border-gray-700 last:border-0';
+                    row.innerHTML = `
+                        <td class="py-2 text-lg">${player}</td>
+                        <td class="py-2 text-left">
+                            <button class="remove-player-button bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded-md transition duration-200" data-index="${index}">
+                                حذف
+                            </button>
+                        </td>
+                    `;
+                });
+            }
+            playerCountSpan.textContent = players.length;
+            updateCitizenCount(); // Update citizen count whenever players change
+            saveGameData(); // Save changes to local storage
+        }
+
+        /**
+         * Sets players from the textarea input.
+         */
+        function setPlayersFromInput() {
+            const inputNames = playerNamesInput.value.split('\n').map(name => name.trim()).filter(name => name !== '');
+            const uniqueNames = [...new Set(inputNames)]; // Remove duplicates
+
+            if (uniqueNames.length === 0) {
+                showMessageBox("الرجاء إدخال أسماء اللاعبين.");
                 return;
             }
-            const answerDiv = document.createElement('div');
-            answerDiv.classList.add('answer-input-group');
-            const count = container.childElementCount + 1;
-            // "النقاط" here is actually "عدد المجيبين"
-            answerDiv.innerHTML = \`
-                <input type="text" placeholder="نص الإجابة \${count}" class="admin-answer-text">
-                <input type="number" placeholder="عدد المجيبين" class="admin-answer-points" min="0">
-            \`;
-            container.appendChild(answerDiv);
-        }
-        function removeLastAnswerField() {
-            const container = document.getElementById('answersInputContainer');
-            if (container.childElementCount > 1) container.removeChild(container.lastElementChild);
-            else showAlert("يجب أن يكون هناك حقل إجابة واحد على الأقل.");
-        }
-        function addQuestionToList() {
-            const questionText = document.getElementById('questionText').value.trim();
-            if (!questionText) { showAlert("الرجاء إدخال نص السؤال."); return; }
-            const answers = [];
-            const answerTextInputs = document.querySelectorAll('#answersInputContainer .admin-answer-text');
-            const answerPointsInputs = document.querySelectorAll('#answersInputContainer .admin-answer-points');
-            let hasValidAnswer = false;
-            for (let i = 0; i < answerTextInputs.length; i++) {
-                const text = answerTextInputs[i].value.trim();
-                const pointsStr = answerPointsInputs[i].value; // This is "عدد المجيبين"
-                if (text && pointsStr) {
-                    const points = parseInt(pointsStr); // This will be used as points
-                    if (!isNaN(points) && points >= 0) {
-                        answers.push({ text: text, points: points, revealed: false });
-                        hasValidAnswer = true;
-                    } else { showAlert(\`عدد المجيبين للإجابة رقم \${i + 1} غير صحيح.\`); return; }
-                } else if (text || pointsStr) { showAlert(\`البيانات غير مكتملة للإجابة رقم \${i + 1}.\`); return; }
+
+            if (uniqueNames.length !== inputNames.length) {
+                showMessageBox("تم إزالة بعض الأسماء المكررة.");
             }
-            if (!hasValidAnswer) { showAlert("الرجاء إدخال إجابة واحدة على الأقل بشكل صحيح."); return; }
-            answers.sort((a, b) => b.points - a.points); // Sort by "عدد المجيبين" (points)
-            adminQuestions.push({ id: Date.now(), question: questionText, answers: answers });
-            document.getElementById('questionText').value = '';
-            document.getElementById('answersInputContainer').innerHTML = '';
-            for(let i = 0; i < DEFAULT_ANSWER_FIELDS; i++) addAnswerField();
-            localStorage.setItem('familyFeudAdminQuestions', JSON.stringify(adminQuestions));
-            renderAdminQuestionsList();
-            showAlert("تمت إضافة السؤال إلى القائمة المؤقتة بنجاح!");
+
+            players = uniqueNames;
+            renderPlayers();
         }
-        function deleteAdminQuestion(questionId) {
-            showConfirmation("هل أنت متأكد أنك تريد حذف هذا السؤال من القائمة المؤقتة؟", (confirmed) => {
-                if (confirmed) {
-                    adminQuestions = adminQuestions.filter(q => q.id !== questionId);
-                    localStorage.setItem('familyFeudAdminQuestions', JSON.stringify(adminQuestions));
-                    renderAdminQuestionsList();
-                    showAlert("تم حذف السؤال من القائمة المؤقتة.");
-                }
-            });
+
+        /**
+         * Removes a player from the list.
+         * @param {number} index The index of the player to remove.
+         */
+        function removePlayer(index) {
+            players.splice(index, 1); // Remove player at index
+            renderPlayers();
         }
-        function renderAdminQuestionsList() {
-            const listDiv = document.getElementById('currentQuestionsList');
-            listDiv.innerHTML = '';
-            if (adminQuestions.length === 0) {
-                listDiv.innerHTML = '<p style="color: var(--feud-text-light);">لم تتم إضافة أي أسئلة بعد.</p>';
+
+        // --- Role Configuration ---
+
+        /**
+         * Calculates and updates the citizen count based on total players and other roles.
+         */
+        function updateCitizenCount() {
+            const totalPlayers = players.length;
+            const mafia = parseInt(mafiaCountInput.value) || 0;
+            const elder = parseInt(elderCountInput.value) || 0;
+            const doctor = parseInt(doctorCountInput.value) || 0;
+
+            const assignedRolesCount = mafia + elder + doctor;
+            let citizen = totalPlayers - assignedRolesCount;
+
+            if (citizen < 0) {
+                citizen = 0; // Prevent negative citizen count, roles will exceed players
+            }
+            citizenCountInput.value = citizen;
+            saveGameData(); // Save settings whenever counts change
+        }
+
+        // --- Game Logic ---
+
+        /**
+         * Initializes and starts the game.
+         */
+        function startGame() {
+            const totalPlayers = players.length;
+            const mafia = parseInt(mafiaCountInput.value) || 0;
+            const elder = parseInt(elderCountInput.value) || 0;
+            const doctor = parseInt(doctorCountInput.value) || 0;
+            const citizen = parseInt(citizenCountInput.value) || 0; // Use calculated citizen count
+
+            const totalRoles = mafia + elder + doctor + citizen;
+
+            if (totalPlayers < 3) { // Minimum players for Mafia game
+                showMessageBox("الرجاء إضافة 3 لاعبين على الأقل لبدء اللعبة.");
                 return;
             }
-            const ul = document.createElement('ul');
-            adminQuestions.forEach((q) => {
-                const li = document.createElement('li');
-                const questionTextSpan = document.createElement('span');
-                questionTextSpan.classList.add('question-text');
-                questionTextSpan.textContent = \`السؤال: \${q.question} (\${q.answers.length} إجابات)\`;
-                const deleteButton = document.createElement('button');
-                deleteButton.classList.add('delete-btn');
-                deleteButton.textContent = 'حذف';
-                deleteButton.onclick = () => deleteAdminQuestion(q.id);
-                li.appendChild(questionTextSpan);
-                li.appendChild(deleteButton);
-                ul.appendChild(li);
+
+            if (totalRoles === 0) {
+                showMessageBox("الرجاء تحديد أدوار اللاعبين.");
+                return;
+            }
+
+            if (totalRoles !== totalPlayers) {
+                showMessageBox(`عدد الأدوار (${totalRoles}) لا يتطابق مع عدد اللاعبين (${totalPlayers}). الرجاء ضبط الأدوار.`);
+                return;
+            }
+
+            if (mafia === 0) {
+                showMessageBox("الرجاء تحديد عدد واحد على الأقل للمافيا.");
+                return;
+            }
+
+            // Create roles array
+            const rolesPool = [];
+            for (let i = 0; i < mafia; i++) rolesPool.push('Mafia');
+            for (let i = 0; i < elder; i++) rolesPool.push('Elder');
+            for (let i = 0; i < doctor; i++) rolesPool.push('Doctor');
+            for (let i = 0; i < citizen; i++) rolesPool.push('Citizen');
+
+            shuffleArray(rolesPool); // Shuffle the roles
+
+            // Assign roles to players
+            const shuffledPlayers = [...players]; // Create a copy and shuffle players
+            shuffleArray(shuffledPlayers);
+
+            assignedRoles = shuffledPlayers.map((player, index) => ({
+                name: player,
+                role: rolesPool[index],
+                isExcluded: false // Add exclusion status
+            }));
+
+            // Hide all sections initially then show the correct one
+            setupSection.classList.add('hidden');
+            gameplaySection.classList.add('hidden');
+            gameOverSection.classList.add('hidden');
+            resetGameButton.classList.add('hidden');
+
+            // Show the new organizer roles overview section
+            organizerRolesOverviewSection.classList.remove('hidden');
+            displayOrganizerRolesOverview(); // Initial display of roles for organizer
+        }
+
+        /**
+         * Displays the shuffled list of players and their roles for the organizer.
+         */
+        function displayOrganizerRolesOverview() {
+            rolesOverviewList.innerHTML = '';
+            const rolesToDisplay = [...assignedRoles]; // Create a copy
+            shuffleArray(rolesToDisplay); // Shuffle the copy for random display
+
+            rolesToDisplay.forEach(player => {
+                const playerRoleDiv = document.createElement('div');
+                playerRoleDiv.className = 'bg-gray-600 p-2 rounded-md flex justify-between items-center text-lg';
+                playerRoleDiv.innerHTML = `
+                    <span class="text-gray-100">${player.name}</span>
+                    <span class="font-semibold text-red-300">${roleNames[player.role]}</span>
+                `;
+                rolesOverviewList.appendChild(playerRoleDiv);
             });
-            listDiv.appendChild(ul);
         }
-        function saveQuestionsToFile() {
-            if (adminQuestions.length === 0) { showAlert("لا توجد أسئلة لحفظها."); return; }
-            const jsonString = JSON.stringify(adminQuestions, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'questions.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showAlert("تم إنشاء ملف questions.json. لا تنسَ رفعه إلى GitHub Pages!");
+
+
+        // --- Gameplay Phase ---
+
+        /**
+         * Transitions to and displays the gameplay phase.
+         */
+        function showGameplayPhase() {
+            organizerRolesOverviewSection.classList.add('hidden'); // Hide organizer section
+            gameplaySection.classList.remove('hidden'); // Show gameplay section
+            renderActivePlayers();
+            gameStatusMessage.textContent = 'اضغط على اسم اللاعب لإقصائه.';
         }
-        function loadFromLocalStorage() {
-            const savedQuestions = localStorage.getItem('familyFeudAdminQuestions');
-            if (savedQuestions) {
-                adminQuestions = JSON.parse(savedQuestions);
-                renderAdminQuestionsList();
+
+        /**
+         * Renders the list of active players in the UI grid for the gameplay phase.
+         */
+        function renderActivePlayers() {
+            activePlayersGrid.innerHTML = ''; // Clear existing list
+            // Sort by excluded status first, then by name
+            const sortedPlayers = [...assignedRoles].sort((a, b) => {
+                if (a.isExcluded === b.isExcluded) {
+                    return a.name.localeCompare(b.name); // Sort alphabetically if status is same
+                }
+                return a.isExcluded ? 1 : -1; // Excluded players last (true for excluded, false for not)
+            });
+
+            if (sortedPlayers.length === 0) {
+                checkGameEndConditions();
+                return;
+            }
+
+            sortedPlayers.forEach(player => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = `player-game-item relative bg-gray-600 p-4 rounded-lg shadow-md flex flex-col items-center justify-center transition duration-200 ${player.isExcluded ? 'excluded-player' : 'cursor-pointer hover:bg-gray-500'}`;
+                playerDiv.dataset.playerName = player.name; // Store name for click event
+
+                playerDiv.innerHTML = `
+                    <span class="text-xl font-semibold text-gray-100 mb-2">${player.name} ${player.isExcluded ? '💀' : ''}</span>
+                    <div class="exclusion-buttons flex gap-2 w-full justify-center">
+                        <button class="exclude-vote-button bg-yellow-600 hover:bg-yellow-700 text-white text-3xl p-2 rounded-lg shadow-md transition duration-200 flex items-center justify-center" data-player-name="${player.name}">
+                            🗳️
+                        </button>
+                        <button class="exclude-kill-button bg-red-600 hover:bg-red-700 text-white text-3xl p-2 rounded-lg shadow-md transition duration-200 flex items-center justify-center" data-player-name="${player.name}">
+                            🔪
+                        </button>
+                    </div>
+                `;
+
+                // Add click listener to the player box to toggle buttons
+                if (!player.isExcluded) {
+                    playerDiv.addEventListener('click', (e) => {
+                        // If the click target is one of the buttons, prevent propagation to parent div's click
+                        if (e.target.closest('button')) {
+                            return;
+                        }
+                        
+                        // Close any other open buttons first
+                        document.querySelectorAll('.player-game-item.active').forEach(item => {
+                            if (item !== playerDiv) {
+                                item.classList.remove('active');
+                            }
+                        });
+                        // Toggle active state for current player box
+                        playerDiv.classList.toggle('active');
+                    });
+                }
+                activePlayersGrid.appendChild(playerDiv);
+            });
+
+            // Add event listeners for the dynamically created buttons
+            activePlayersGrid.querySelectorAll('.exclude-vote-button').forEach(button => {
+                button.onclick = (e) => excludePlayer(e.target.dataset.playerName);
+            });
+            activePlayersGrid.querySelectorAll('.exclude-kill-button').forEach(button => {
+                button.onclick = (e) => excludePlayer(e.target.dataset.playerName);
+            });
+
+            checkGameEndConditions(); // Check conditions after rendering active players
+        }
+
+        /**
+         * Excludes a player from the game.
+         * @param {string} playerName The name of the player to exclude.
+         */
+        function excludePlayer(playerName) {
+            const playerToExclude = assignedRoles.find(p => p.name === playerName);
+            if (playerToExclude) {
+                playerToExclude.isExcluded = true;
+                renderActivePlayers(); // Re-render to show updated active list
+                showMessageBox(`${playerName} تم إقصاؤه.`);
+            }
+            // After exclusion, ensure all exclusion buttons are hidden (if any were open)
+            document.querySelectorAll('.player-game-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        /**
+         * Checks if the game has ended based on win/loss conditions.
+         */
+        function checkGameEndConditions() {
+            const activeMafia = assignedRoles.filter(p => !p.isExcluded && p.role === 'Mafia').length;
+            const activeTown = assignedRoles.filter(p => !p.isExcluded && (p.role === 'Citizen' || p.role === 'Doctor' || p.role === 'Elder')).length;
+
+            let gameEnded = false;
+            let resultMessage = '';
+
+            if (activeMafia === 0 && assignedRoles.length > 0) { // All mafia excluded
+                resultMessage = 'فاز المواطنون! تم القضاء على جميع أفراد المافيا.';
+                gameEnded = true;
+            } else if (activeMafia > 0 && activeMafia >= activeTown) { // Mafia outnumbers or equals town
+                resultMessage = 'فازت المافيا! عدد أفراد المافيا يساوي أو يتجاوز عدد المواطنين.';
+                gameEnded = true;
+            } else if (assignedRoles.length > 0 && activeMafia === 0 && activeTown === 0) { // All players excluded
+                 resultMessage = 'انتهت اللعبة! لم يتبق أي لاعبين نشطين.';
+                 gameEnded = true;
+            }
+
+
+            if (gameEnded) {
+                endGame(resultMessage);
             }
         }
-        function clearLocalStorage(){
-            showConfirmation("هل أنت متأكد من مسح جميع الأسئلة المحفوظة مؤقتاً؟", (confirmed) => {
-                if (confirmed) {
-                    localStorage.removeItem('familyFeudAdminQuestions');
-                    adminQuestions = [];
-                    renderAdminQuestionsList();
-                    showAlert("تم مسح الأسئلة المحفوظة مؤقتاً.");
-                }
+
+        /**
+         * Ends the game and displays the results.
+         * @param {string} message The final message for the game result.
+         */
+        function endGame(message) {
+            gameplaySection.classList.add('hidden');
+            organizerRolesOverviewSection.classList.add('hidden'); // Ensure organizer section is hidden
+            setupSection.classList.add('hidden'); // Ensure setup is hidden
+            gameOverSection.classList.remove('hidden');
+            finalGameResultMessage.textContent = message;
+            resetGameButton.classList.remove('hidden');
+
+            // Display final roles
+            finalPlayersRoles.innerHTML = '';
+            assignedRoles.forEach(player => {
+                const playerDiv = document.createElement('div');
+                let status = player.isExcluded ? '💀 (مقصى)' : '✅ (نشط)';
+                playerDiv.className = `p-2 rounded-md shadow-sm ${player.isExcluded ? 'bg-gray-600 text-gray-400' : 'bg-gray-500 text-white'}`;
+                playerDiv.innerHTML = `<span class="font-semibold">${player.name}</span>: ${roleNames[player.role] || player.role} ${status}`;
+                finalPlayersRoles.appendChild(playerDiv);
             });
         }
 
-        // Game Page Logic
-        async function loadGameQuestions() {
-            const gameStatusEl = document.getElementById('gameStatus');
-            const initialScreen = document.getElementById('initialGameScreen');
-            initialScreen.classList.add('hidden');
-            gameStatusEl.classList.remove('hidden');
-            gameStatusEl.textContent = '⏳ جاري تحميل ملف الأسئلة...';
-            document.getElementById('questionSelectionArea').classList.add('hidden');
-            document.getElementById('questionDisplayArea').classList.add('hidden');
-            document.getElementById('totalScoreArea').classList.add('hidden');
-            try {
-                const response = await fetch('questions.json?cachebust=' + new Date().getTime());
-                if (!response.ok) throw new Error(\`فشل تحميل ملف الأسئلة. رمز الخطأ: \${response.status}\`);
-                gameData = await response.json();
-                if (!Array.isArray(gameData) || gameData.length === 0) {
-                    throw new Error('ملف الأسئلة فارغ أو بصيغة غير صحيحة.');
-                }
-                gameData.forEach(q => q.answers.forEach(a => a.revealed = false)); // Reset revealed state
-                displayQuestionSelectionButtons();
-                gameStatusEl.textContent = '✅ تم تحميل الأسئلة! اختر سؤالاً:';
-                document.getElementById('questionSelectionArea').classList.remove('hidden');
-            } catch (error) {
-                console.error('Error loading game questions:', error);
-                gameStatusEl.textContent = \`❌ خطأ: \${error.message}\`;
-                showAlert(\`حدث خطأ أثناء تحميل الأسئلة: \${error.message}\nتأكد من رفع ملف 'questions.json' بشكل صحيح.\`);
-                initialScreen.classList.remove('hidden');
-                gameStatusEl.classList.add('hidden');
+
+        /**
+         * Resets the entire game to its initial state.
+         */
+        function resetGame() {
+            players = [];
+            assignedRoles = [];
+            // currentPlayerIndex and isRoleRevealed are no longer needed
+            // currentPlayerIndex = 0;
+            // isRoleRevealed = false;
+
+            playerNamesInput.value = '';
+            mafiaCountInput.value = 1;
+            elderCountInput.value = 0;
+            doctorCountInput.value = 0;
+            // citizenCountInput will be updated by renderPlayers
+
+            renderPlayers(); // Clear player list display and update citizen count
+            saveGameData(); // Save empty/default state
+
+            setupSection.classList.remove('hidden');
+            organizerRolesOverviewSection.classList.add('hidden'); // Hide organizer section
+            gameplaySection.classList.add('hidden');
+            gameOverSection.classList.add('hidden');
+            resetGameButton.classList.add('hidden');
+
+            // Removed elements specific to the old role reveal section
+            // currentPlayerNameDisplay.textContent = 'اسم اللاعب';
+            // currentPlayerRoleDisplay.classList.add('hidden');
+            // showRoleButton.classList.remove('hidden');
+            // nextPlayerButton.classList.add('hidden');
+
+            gameStatusMessage.textContent = '';
+            activePlayersGrid.innerHTML = '';
+            finalGameResultMessage.textContent = '';
+            finalPlayersRoles.innerHTML = '';
+        }
+
+        // --- Event Listeners ---
+
+        // Set players from textarea
+        setPlayersButton.addEventListener('click', setPlayersFromInput);
+
+        // Event delegation for removing players
+        playerListTableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-player-button')) {
+                const index = parseInt(e.target.dataset.index);
+                removePlayer(index);
             }
-        }
-
-        function highlightActiveQuestionButton() {
-            document.querySelectorAll('#gameQuestionsList button').forEach(btn => {
-                btn.classList.remove('active-question-btn');
-            });
-            if (currentLoadedQuestionIndex !== -1) {
-                const activeBtn = document.querySelector(\`#gameQuestionsList button[data-qindex="\${currentLoadedQuestionIndex}"]\`);
-                if (activeBtn) {
-                    activeBtn.classList.add('active-question-btn');
-                }
-            }
-        }
-
-        function displayQuestionSelectionButtons() {
-            const listDiv = document.getElementById('gameQuestionsList');
-            listDiv.innerHTML = '';
-            gameData.forEach((q, index) => {
-                const button = document.createElement('button');
-                button.textContent = \`\${index + 1}\`;
-                button.dataset.qindex = index; // Store index for highlighting
-                button.onclick = () => selectGameQuestion(index);
-                listDiv.appendChild(button);
-            });
-            highlightActiveQuestionButton(); // Highlight if a question was already selected
-        }
-
-        function selectGameQuestion(index) {
-            if (index < 0 || index >= gameData.length) return;
-
-            currentLoadedQuestionIndex = index; // Store the selected question index
-            currentLoadedQuestion = JSON.parse(JSON.stringify(gameData[index]));
-             // Answers are already sorted by points (عدد المجيبين) during admin input
-            currentQuestionTotalScore = 0;
-
-            document.getElementById('currentQuestionTitle').textContent = \`السؤال رقم \${index + 1}\`;
-            document.getElementById('currentQuestionText').textContent = currentLoadedQuestion.question;
-            const answerColumnLeft = document.getElementById('answerColumnLeft');
-            const answerColumnRight = document.getElementById('answerColumnRight');
-            answerColumnLeft.innerHTML = '';
-            answerColumnRight.innerHTML = '';
-
-            currentLoadedQuestion.answers.forEach((ans, ansIndex) => {
-                const answerSlot = document.createElement('div');
-                answerSlot.classList.add('answer-slot');
-                answerSlot.dataset.index = ansIndex;
-                const rankSpan = document.createElement('span');
-                rankSpan.textContent = \`\${ansIndex + 1}\`; // This is the display order
-                rankSpan.classList.add('rank');
-                const textSpan = document.createElement('span');
-                textSpan.textContent = \`[ اضغط للكشف ]\`;
-                textSpan.classList.add('text');
-                const pointsSpan = document.createElement('span');
-                pointsSpan.classList.add('points');
-                pointsSpan.textContent = \`\${ans.points}\`; // "عدد المجيبين" is the points
-                pointsSpan.classList.add('hidden');
-                answerSlot.appendChild(pointsSpan);
-                answerSlot.appendChild(textSpan);
-                answerSlot.appendChild(rankSpan);
-                if (ans.revealed) {
-                    answerSlot.classList.add('revealed');
-                    textSpan.textContent = ans.text;
-                    pointsSpan.classList.remove('hidden');
-                    currentQuestionTotalScore += ans.points;
-                    answerSlot.onclick = null;
-                } else {
-                    answerSlot.onclick = () => revealGameAnswer(ansIndex);
-                }
-                if (ansIndex < 5) answerColumnLeft.appendChild(answerSlot);
-                else answerColumnRight.appendChild(answerSlot);
-            });
-
-            document.getElementById('questionSelectionArea').classList.add('hidden');
-            document.getElementById('questionDisplayArea').classList.remove('hidden');
-            document.getElementById('totalScoreArea').classList.remove('hidden');
-            updateCurrentQuestionScoreDisplay();
-            highlightActiveQuestionButton(); // Highlight the button for this question
-        }
-
-        function revealGameAnswer(answerIndex) {
-            if (!currentLoadedQuestion || answerIndex < 0 || answerIndex >= currentLoadedQuestion.answers.length) return;
-            const answer = currentLoadedQuestion.answers[answerIndex];
-            if (answer.revealed) return;
-            answer.revealed = true;
-            currentQuestionTotalScore += answer.points;
-            const answerSlot = document.querySelector(\`#answersBoard .answer-slot[data-index="\${answerIndex}"]\`);
-            if (answerSlot) {
-                answerSlot.classList.add('revealed');
-                answerSlot.querySelector('.text').textContent = answer.text;
-                answerSlot.querySelector('.points').classList.remove('hidden');
-                answerSlot.onclick = null;
-            }
-            updateCurrentQuestionScoreDisplay();
-        }
-
-        function returnToQuestionSelection() {
-            document.getElementById('questionDisplayArea').classList.add('hidden');
-            document.getElementById('totalScoreArea').classList.add('hidden');
-            document.getElementById('questionSelectionArea').classList.remove('hidden');
-            document.getElementById('gameStatus').textContent = 'اختر سؤالاً آخر أو أعد تحميل الأسئلة.';
-            // currentLoadedQuestionIndex remains to keep the last selected button highlighted
-            highlightActiveQuestionButton();
-        }
-
-        function updateCurrentQuestionScoreDisplay() {
-            document.getElementById('currentQuestionScore').textContent = currentQuestionTotalScore;
-        }
-
-        // Initial Setup
-        document.addEventListener('DOMContentLoaded', () => {
-            const adminH3 = document.getElementById('adminAnswersHeader');
-            if(adminH3) adminH3.textContent = \`الإجابات وعدد المجيبين (بحد أقصى \${MAX_ANSWERS_PER_QUESTION} إجابات):\`;
-            const gameTitle = document.querySelector('h1.game-title');
-            if(gameTitle) gameTitle.setAttribute('data-text', gameTitle.textContent);
-            showPage('gamePage');
-            loadFromLocalStorage();
         });
+
+        // Update citizen count whenever role counts change
+        mafiaCountInput.addEventListener('input', updateCitizenCount);
+        elderCountInput.addEventListener('input', updateCitizenCount);
+        doctorCountInput.addEventListener('input', updateCitizenCount);
+
+        // Start game button
+        startGameButton.addEventListener('click', startGame);
+
+        // Event listeners for the new organizer roles overview section
+        shuffleRolesDisplayButton.addEventListener('click', displayOrganizerRolesOverview);
+        proceedToGameplayButton.addEventListener('click', showGameplayPhase);
+
+        // Reset game button
+        resetGameButton.addEventListener('click', resetGame);
+
+        // Close message box
+        closeMessageBox.addEventListener('click', hideMessageBox);
+
+        // Initial load
+        window.onload = function () {
+            loadGameData(); // Load data first
+        };
     </script>
 </body>
 </html>
