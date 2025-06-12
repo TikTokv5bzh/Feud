@@ -12,9 +12,23 @@
         /* Import Amiri font */
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 
+        /* Ensure HTML and Body take full height and have no default margins/padding */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
         body {
             font-family: 'Amiri', serif; /* Set Amiri as primary font, with generic serif fallback */
             direction: rtl; /* Set text direction to right-to-left for Arabic */
+            overflow: hidden; /* Prevent body scroll when full-page sections are active */
+            background-color: #1a202c; /* bg-gray-900 for consistent background */
+            display: flex; /* Use flexbox to center content */
+            align-items: center; /* Center horizontally */
+            justify-content: center; /* Center vertically */
+            min-height: 100vh; /* Ensure body takes at least full viewport height */
+            /* Removed p-4 from body here as it would affect full-page sections */
         }
         /* Custom scrollbar for player list */
         .player-list-container::-webkit-scrollbar {
@@ -133,18 +147,92 @@
                 bottom: 12%; /* Adjust for larger screens if needed */
             }
         }
+
+        /* Styles for full-page sections (Online and Local Game modes) */
+        .full-page-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a202c; /* bg-gray-900 */
+            z-index: 60; /* Higher than messageBox */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto; /* Allow scrolling within full-page sections if content overflows */
+            /* Removed padding here to allow iframe to be edge-to-edge */
+        }
+
+        /* Styles for the main landing page container */
+        #landing-page-container {
+            background-color: #2d3748; /* bg-gray-800 */
+            padding: 1.5rem; /* p-6 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            width: 100%;
+            max-width: 28rem; /* max-w-md */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        /* Style for content within full-page local game section to keep it centered and readable */
+        .local-game-content-wrapper {
+            background-color: #2d3748; /* bg-gray-800 */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 32rem; /* slightly wider for content */
+            margin-top: 60px; /* Space for the back button */
+            margin-bottom: 20px;
+            flex-grow: 1; /* Allow it to grow in flex container */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 1.5rem; /* space-y-6 */
+            max-height: calc(100vh - 80px); /* Account for top button and bottom margin */
+            overflow-y: auto; /* Allow internal scrolling if content overflows */
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            .local-game-content-wrapper {
+                padding: 2rem; /* sm:p-8 */
+                max-width: 36rem; /* sm:max-w-lg */
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .local-game-content-wrapper {
+                padding: 2.5rem; /* md:p-10 */
+                max-width: 42rem; /* md:max-w-xl */
+            }
+        }
+
+        /* Ensure iframe fills its parent completely */
+        #onlineGameIframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            margin: 0;
+            padding: 0;
+            display: block; /* Removes extra space below iframe */
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
-    <div class="bg-gray-800 p-6 sm:p-8 md:p-10 rounded-xl shadow-lg w-full max-w-md flex flex-col space-y-6 relative">
-        <!-- Instructions Button -->
-        <button id="instructionsButton"
-            class="absolute top-4 left-4 text-white text-3xl p-2 cursor-pointer z-50">
-            <i class="bi bi-exclamation-circle"></i>
-        </button>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
 
-        <!-- Landing Page Section -->
-        <div id="landing-page-section" class="flex flex-col items-center justify-center space-y-8 min-h-[300px]">
+    <!-- Landing Page Section (Initially visible) -->
+    <div id="landing-page-section" class="flex flex-col items-center justify-center space-y-8 relative z-10 p-4">
+        <div id="landing-page-container">
+            <!-- Instructions Button -->
+            <button id="instructionsButton"
+                class="absolute top-4 left-4 text-white text-3xl p-2 cursor-pointer z-50">
+                <i class="bi bi-exclamation-circle"></i>
+            </button>
+
             <!-- Image and Text Title Container -->
             <div class="image-text-overlay-container">
                 <img id="mainTitleImage" src="https://imgg.io/images/2025/06/11/e6027e4703e1db4e7675e5f6701d1bbe.png"
@@ -154,149 +242,182 @@
                 <h1 class="game-text-title">لعبة المافيا</h1>
             </div>
 
-            <button id="startLocalMafiaButton"
-                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-4">
-                مافيا محلية
-            </button>
-        </div>
-
-        <!-- Setup Section (Initially Hidden) -->
-        <div id="setup-section" class="space-y-6 hidden">
-            <!-- Player Names Input (Textarea) -->
-            <div class="flex flex-col gap-3">
-                <label for="playerNamesInput" class="text-lg text-red-200">أدخل أسماء اللاعبين (كل اسم في سطر):</label>
-                <textarea id="playerNamesInput" rows="6" placeholder="مثال:&#10;أحمد&#10;فاطمة&#10;محمد&#10;ليلى"
-                    class="bg-gray-700 text-white placeholder-gray-400 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"></textarea>
-                <button id="setPlayersButton"
-                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-                    تأكيد الأسماء
+            <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                <button id="startLocalMafiaButton"
+                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-full">
+                    محلية
                 </button>
-            </div>
-
-            <!-- Player List Display in Table -->
-            <div>
-                <h2 class="text-xl font-semibold mb-3 text-red-300">اللاعبون (<span id="playerCount">0</span>):</h2>
-                <div class="player-list-container bg-gray-700 p-4 rounded-lg max-h-48 overflow-y-auto">
-                    <table class="w-full text-white table-auto">
-                        <thead>
-                            <tr class="text-gray-400 border-b border-gray-600">
-                                <th class="py-2 text-right">الاسم</th>
-                                <th class="py-2 text-left w-20"></th> <!-- For delete button -->
-                            </tr>
-                        </thead>
-                        <tbody id="playerListTableBody">
-                            <!-- Player rows will be appended here -->
-                        </tbody>
-                    </table>
-                    <p class="text-gray-400 text-center py-4" id="noPlayersMessage">لا يوجد لاعبون مضافون بعد.</p>
-                </div>
-            </div>
-
-            <!-- Role Configuration -->
-            <div class="grid grid-cols-2 gap-4 text-red-200">
-                <div class="flex flex-col">
-                    <label for="mafiaCount" class="mb-1 text-lg">المافيا:</label>
-                    <input type="number" id="mafiaCount" min="0" value="1"
-                        class="bg-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
-                </div>
-                <div class="flex flex-col">
-                    <label for="elderCount" class="mb-1 text-lg">الشايب:</label>
-                    <input type="number" id="elderCount" min="0" value="0"
-                        class="bg-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
-                </div>
-                <div class="flex flex-col">
-                    <label for="doctorCount" class="mb-1 text-lg">الدكتور:</label>
-                    <input type="number" id="doctorCount" min="0" value="0" readonly
-                        class="bg-gray-700 text-gray-400 p-2 rounded-lg cursor-not-allowed">
-                </div>
-                <div class="flex flex-col">
-                    <label for="citizenCount" class="mb-1 text-lg">المواطن:</label>
-                    <input type="number" id="citizenCount" min="0" value="0" readonly
-                        class="bg-gray-700 text-gray-400 p-2 rounded-lg cursor-not-allowed">
-                </div>
-            </div>
-
-            <!-- Start Game Button -->
-            <button id="startGameButton"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-                بدء اللعبة
-            </button>
-        </div>
-
-        <!-- Role Reveal Section -->
-        <div id="role-reveal-section" class="hidden flex flex-col items-center justify-center space-y-6 min-h-[250px]">
-            <p class="text-xl sm:text-2xl font-bold text-red-300">الاسم:</p>
-            <p id="currentPlayerName" class="text-4xl sm:text-5xl font-extrabold text-red-500">اسم اللاعب</p>
-            <button id="showRoleButton"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-                إظهار الوظيفة
-            </button>
-            <p id="currentPlayerRole" class="text-3xl sm:text-4xl font-bold text-green-400 hidden">الدور</p>
-            <button id="nextPlayerButton"
-                class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 hidden">
-                اللاعب التالي
-            </button>
-        </div>
-
-        <!-- Gameplay Section -->
-        <div id="gameplay-section" class="hidden flex flex-col items-center justify-center space-y-6 min-h-[250px]">
-            <h2 class="text-xl sm:text-2xl font-bold text-red-300">اللاعبون:</h2>
-            <div id="activePlayersGrid" class="w-full grid grid-cols-2 gap-4 max-h-80 overflow-y-auto p-2">
-                <!-- Player boxes with their names and exclusion buttons -->
-            </div>
-            <p id="gameStatusMessage" class="text-lg text-red-200 mt-4"></p>
-        </div>
-
-        <!-- Game Over Section -->
-        <div id="game-over-section" class="hidden flex flex-col items-center justify-center space-y-6">
-            <p id="finalGameResultMessage" class="text-3xl font-bold text-center text-red-500"></p>
-            <h2 class="text-xl font-semibold text-red-300">نتائج اللعبة النهائية:</h2>
-            <div id="finalPlayersRoles" class="w-full bg-gray-700 p-4 rounded-lg max-h-60 overflow-y-auto text-center">
-                <!-- Final player roles will be displayed here -->
-            </div>
-            <!-- Reset Game Button is now the only "action" button after game over, returns to landing page -->
-            <button id="resetGameButton"
-                class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-6">
-                إعادة اللعب بالكامل
-            </button>
-        </div>
-
-
-        <!-- Custom Message Box -->
-        <div id="messageBox"
-            class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-            <div class="bg-gray-700 p-6 rounded-xl shadow-lg flex flex-col space-y-4">
-                <p id="messageText" class="text-white text-lg text-center"></p>
-                <button id="closeMessageBox"
-                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-lg transition duration-200">
-                    موافق
+                <button id="startOnlineMafiaButton"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 w-full">
+                    أونلاين
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Local Game Full-Page Section (Initially Hidden) -->
+    <div id="local-game-section" class="full-page-section hidden">
+        <button id="backToMainMenuButtonLocal"
+            class="absolute top-4 right-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out z-70">
+            العودة للقائمة الرئيسية
+        </button>
+        <div class="local-game-content-wrapper flex flex-col space-y-6">
+            <!-- Setup Section (Now a child of local-game-section) -->
+            <div id="setup-section" class="space-y-6">
+                <!-- Player Names Input (Textarea) -->
+                <div class="flex flex-col gap-3">
+                    <label for="playerNamesInput" class="text-lg text-red-200">أدخل أسماء اللاعبين (كل اسم في سطر):</label>
+                    <textarea id="playerNamesInput" rows="6" placeholder="مثال:&#10;أحمد&#10;فاطمة&#10;محمد&#10;ليلى"
+                        class="bg-gray-700 text-white placeholder-gray-400 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200"></textarea>
+                    <button id="setPlayersButton"
+                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                        تأكيد الأسماء
+                    </button>
+                </div>
+
+                <!-- Player List Display in Table -->
+                <div>
+                    <h2 class="text-xl font-semibold mb-3 text-red-300">اللاعبون (<span id="playerCount">0</span>):</h2>
+                    <div class="player-list-container bg-gray-700 p-4 rounded-lg max-h-48 overflow-y-auto">
+                        <table class="w-full text-white table-auto">
+                            <thead>
+                                <tr class="text-gray-400 border-b border-gray-600">
+                                    <th class="py-2 text-right">الاسم</th>
+                                    <th class="py-2 text-left w-20"></th> <!-- For delete button -->
+                                </tr>
+                            </thead>
+                            <tbody id="playerListTableBody">
+                                <!-- Player rows will be appended here -->
+                            </tbody>
+                        </table>
+                        <p class="text-gray-400 text-center py-4" id="noPlayersMessage">لا يوجد لاعبون مضافون بعد.</p>
+                    </div>
+                </div>
+
+                <!-- Role Configuration -->
+                <div class="grid grid-cols-2 gap-4 text-red-200">
+                    <div class="flex flex-col">
+                        <label for="mafiaCount" class="mb-1 text-lg">المافيا:</label>
+                        <input type="number" id="mafiaCount" min="0" value="1"
+                            class="bg-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="elderCount" class="mb-1 text-lg">الشايب:</label>
+                        <input type="number" id="elderCount" min="0" value="0"
+                            class="bg-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-200">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="doctorCount" class="mb-1 text-lg">الدكتور:</label>
+                        <input type="number" id="doctorCount" min="0" value="0" readonly
+                            class="bg-gray-700 text-gray-400 p-2 rounded-lg cursor-not-allowed">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="citizenCount" class="mb-1 text-lg">المواطن:</label>
+                        <input type="number" id="citizenCount" min="0" value="0" readonly
+                            class="bg-gray-700 text-gray-400 p-2 rounded-lg cursor-not-allowed">
+                    </div>
+                </div>
+
+                <!-- Start Game Button -->
+                <button id="startGameButton"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    بدء اللعبة
+                </button>
+            </div>
+
+            <!-- Role Reveal Section (Now a child of local-game-section) -->
+            <div id="role-reveal-section" class="hidden flex flex-col items-center justify-center space-y-6 min-h-[250px]">
+                <p class="text-xl sm:text-2xl font-bold text-red-300">الاسم:</p>
+                <p id="currentPlayerName" class="text-4xl sm:text-5xl font-extrabold text-red-500">اسم اللاعب</p>
+                <button id="showRoleButton"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    إظهار الوظيفة
+                </button>
+                <p id="currentPlayerRole" class="text-3xl sm:text-4xl font-bold text-green-400 hidden">الدور</p>
+                <button id="nextPlayerButton"
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 hidden">
+                    اللاعب التالي
+                </button>
+            </div>
+
+            <!-- Gameplay Section (Now a child of local-game-section) -->
+            <div id="gameplay-section" class="hidden flex flex-col items-center justify-center space-y-6 min-h-[250px]">
+                <h2 class="text-xl sm:text-2xl font-bold text-red-300">اللاعبون:</h2>
+                <div id="activePlayersGrid" class="w-full grid grid-cols-2 gap-4 max-h-80 overflow-y-auto p-2">
+                    <!-- Player boxes with their names and exclusion buttons -->
+                </div>
+                <p id="gameStatusMessage" class="text-lg text-red-200 mt-4"></p>
+            </div>
+
+            <!-- Game Over Section (Now a child of local-game-section) -->
+            <div id="game-over-section" class="hidden flex flex-col items-center justify-center space-y-6">
+                <p id="finalGameResultMessage" class="text-3xl font-bold text-center text-red-500"></p>
+                <h2 class="text-xl font-semibold text-red-300">نتائج اللعبة النهائية:</h2>
+                <div id="finalPlayersRoles" class="w-full bg-gray-700 p-4 rounded-lg max-h-60 overflow-y-auto text-center">
+                    <!-- Final player roles will be displayed here -->
+                </div>
+                <!-- Reset Game Button is now the only "action" button after game over, returns to landing page -->
+                <button id="resetGameButton"
+                    class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-6">
+                    إعادة اللعب بالكامل
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Online Game Full-Page Section (Initially Hidden) -->
+    <div id="online-game-section" class="full-page-section hidden">
+        <button id="backToMainMenuButtonOnline"
+            class="absolute top-4 right-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out z-70">
+            العودة للقائمة الرئيسية
+        </button>
+        <iframe id="onlineGameIframe" src="https://mafia.sop-dev.com/" title="Online Mafia Game"></iframe>
+    </div>
+
+    <!-- Custom Message Box -->
+    <div id="messageBox"
+        class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-700 p-6 rounded-xl shadow-lg flex flex-col space-y-4">
+            <p id="messageText" class="text-white text-lg text-center"></p>
+            <button id="closeMessageBox"
+                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-lg transition duration-200">
+                موافق
+            </button>
+        </div>
+    </div>
+
     <script>
         // DOM Elements
-        const landingPageSection = document.getElementById('landing-page-section');
-        const startLocalMafiaButton = document.getElementById('startLocalMafiaButton');
-        const instructionsButton = document.getElementById('instructionsButton');
-        const mainTitleImage = document.getElementById('mainTitleImage'); // Get the image element
+        const landingPageSection = document.getElementById('landing-page-section'); // The wrapper for the main content on landing page
+        const landingPageContainer = document.getElementById('landing-page-container'); // The actual content box on landing page
 
+        const startLocalMafiaButton = document.getElementById('startLocalMafiaButton');
+        const startOnlineMafiaButton = document.getElementById('startOnlineMafiaButton');
+        const instructionsButton = document.getElementById('instructionsButton');
+
+        const localGameSection = document.getElementById('local-game-section'); // New full-page section for local game
+        const onlineGameSection = document.getElementById('online-game-section'); // Existing full-page section for online game
+
+        // Buttons to go back to main menu
+        const backToMainMenuButtonLocal = document.getElementById('backToMainMenuButtonLocal');
+        const backToMainMenuButtonOnline = document.getElementById('backToMainMenuButtonOnline');
+
+        const onlineGameIframe = document.getElementById('onlineGameIframe');
+
+        // Elements specific to the local game setup and gameplay
+        const setupSection = document.getElementById('setup-section');
         const playerNamesInput = document.getElementById('playerNamesInput');
         const setPlayersButton = document.getElementById('setPlayersButton');
         const playerListTableBody = document.getElementById('playerListTableBody');
         const playerCountSpan = document.getElementById('playerCount');
         const noPlayersMessage = document.getElementById('noPlayersMessage');
-
         const mafiaCountInput = document.getElementById('mafiaCount');
         const elderCountInput = document.getElementById('elderCount');
         const doctorCountInput = document.getElementById('doctorCount');
         const citizenCountInput = document.getElementById('citizenCount');
-
         const startGameButton = document.getElementById('startGameButton');
-        const resetGameButton = document.getElementById('resetGameButton');
+        const resetGameButton = document.getElementById('resetGameButton'); // This button is inside game-over-section
 
-        const setupSection = document.getElementById('setup-section');
         const roleRevealSection = document.getElementById('role-reveal-section');
         const currentPlayerNameDisplay = document.getElementById('currentPlayerName');
         const showRoleButton = document.getElementById('showRoleButton');
@@ -354,7 +475,7 @@
                             <li><strong>المافيا 🐺:</strong> فريق الأشرار، يعلمون هويات بعضهم ويقتلون شخصاً كل ليلة.</li>
                             <li><strong>الدكتور 👩‍⚕️:</strong> (مواطن) يحمي شخصاً واحداً من الموت كل ليلة. لا يمكنه حماية نفسه ليلتين متتاليتين.</li>
                             <li><strong>الشايب 👴:</strong> (مواطن) لا يمكن قتله في أول ليلة. إذا تم إقصاؤه، قد تكون له حياة إضافية (حسب قواعد اللعب المتفق عليها).</li>
-                            <li><strong>المواطن العادي 🧑‍🤝‍🧑:</strong> (مواطن) لا يمتلك قدرة خاصة، يعتمد على النقاش والاستنتاج والتصويت.</li>
+                            <li><strong>المواطن العادي 🧑‍🤝‍🧑:</b> (مواطن) لا يمتلك قدرة خاصة، يعتمد على النقاش والاستنتاج والتصويت.</li>
                         </ul>
                     </div>
                 </div>
@@ -559,11 +680,43 @@
         // --- Game Logic ---
 
         /**
-         * Starts the game setup process from the landing page.
+         * Hides all main sections of the game.
+         */
+        function hideAllSections() {
+            landingPageSection.classList.add('hidden'); // Hide the landing page itself
+            localGameSection.classList.add('hidden');
+            onlineGameSection.classList.add('hidden');
+        }
+
+        /**
+         * Shows the landing page and hides all other sections.
+         */
+        function showLandingPage() {
+            hideAllSections();
+            landingPageSection.classList.remove('hidden');
+            onlineGameIframe.src = "about:blank"; // Clear iframe content when returning to main menu
+        }
+
+        /**
+         * Starts the local game setup process by showing its full-page section.
          */
         function startLocalMafiaGame() {
-            landingPageSection.classList.add('hidden');
+            hideAllSections();
+            localGameSection.classList.remove('hidden');
+            // Ensure setup section is visible when entering local game flow
             setupSection.classList.remove('hidden');
+            roleRevealSection.classList.add('hidden');
+            gameplaySection.classList.add('hidden');
+            gameOverSection.classList.add('hidden');
+        }
+
+        /**
+         * Starts the online game by showing its full-page iframe section.
+         */
+        function startOnlineMafiaGame() {
+            hideAllSections();
+            onlineGameSection.classList.remove('hidden');
+            onlineGameIframe.src = "https://mafia.sop-dev.com/"; // Set the URL for the online game iframe
         }
 
         /**
@@ -574,7 +727,7 @@
         }
 
         /**
-         * Initializes and starts the game.
+         * Initializes and starts the local game process after player setup.
          */
         function startGame() {
             const totalPlayers = players.length;
@@ -629,15 +782,12 @@
             currentPlayerIndex = 0;
             isRoleRevealed = false;
 
-            // Hide all sections initially then show the correct one
+            // Hide setup and show role reveal within the local game section
             setupSection.classList.add('hidden');
+            roleRevealSection.classList.remove('hidden');
             gameplaySection.classList.add('hidden');
             gameOverSection.classList.add('hidden');
-            landingPageSection.classList.add('hidden');
-            resetGameButton.classList.add('hidden');
 
-            // Show the Role Reveal Section first
-            roleRevealSection.classList.remove('hidden');
             displayCurrentPlayerForRoleReveal();
         }
 
@@ -832,13 +982,13 @@
          * @param {string} message The final message for the game result.
          */
         function endGame(message) {
+            setupSection.classList.add('hidden'); // Ensure all local game phases are hidden
+            roleRevealSection.classList.add('hidden');
             gameplaySection.classList.add('hidden');
-            roleRevealSection.classList.add('hidden'); // Ensure role reveal is hidden too
-            setupSection.classList.add('hidden'); // Ensure setup is hidden
-            landingPageSection.classList.add('hidden'); // Ensure landing page is hidden
-            gameOverSection.classList.remove('hidden');
+            gameOverSection.classList.remove('hidden'); // Show game over section
+
             finalGameResultMessage.textContent = message;
-            resetGameButton.classList.remove('hidden');
+            // The resetGameButton is already part of gameOverSection, so no separate show/hide needed for it here
 
             // Display final roles
             finalPlayersRoles.innerHTML = '';
@@ -863,7 +1013,7 @@
 
 
         /**
-         * Resets the entire game to its initial state, returning to the landing page.
+         * Resets the entire local game to its initial setup state and returns to the landing page.
          */
         function resetGame() {
             players = [];
@@ -879,16 +1029,6 @@
             renderPlayers(); // Clear player list display and update citizen count
             saveGameData(); // Save empty/default state
 
-            // Hide all game sections
-            setupSection.classList.add('hidden');
-            roleRevealSection.classList.add('hidden');
-            gameplaySection.classList.add('hidden');
-            gameOverSection.classList.add('hidden');
-            resetGameButton.classList.add('hidden');
-
-            // Show the landing page
-            landingPageSection.classList.remove('hidden');
-
             // Reset elements specific to current game state displays
             currentPlayerNameDisplay.textContent = 'اسم اللاعب';
             currentPlayerRoleDisplay.classList.add('hidden');
@@ -899,15 +1039,26 @@
             activePlayersGrid.innerHTML = '';
             finalGameResultMessage.textContent = '';
             finalPlayersRoles.innerHTML = '';
+
+            // After resetting, ensure setup section is visible for new local game
+            setupSection.classList.remove('hidden');
+            roleRevealSection.classList.add('hidden');
+            gameplaySection.classList.add('hidden');
+            gameOverSection.classList.add('hidden');
         }
 
         // --- Event Listeners ---
 
         // Landing Page Buttons
         startLocalMafiaButton.addEventListener('click', startLocalMafiaGame);
-        instructionsButton.addEventListener('click', showInstructions); // Listen on the global button
+        startOnlineMafiaButton.addEventListener('click', startOnlineMafiaGame);
+        instructionsButton.addEventListener('click', showInstructions);
 
-        // Setup Section Buttons
+        // Back to Main Menu Buttons (for both local and online sections)
+        backToMainMenuButtonLocal.addEventListener('click', showLandingPage);
+        backToMainMenuButtonOnline.addEventListener('click', showLandingPage);
+
+        // Local Game Setup Section Buttons
         setPlayersButton.addEventListener('click', setPlayersFromInput);
         playerListTableBody.addEventListener('click', (e) => {
             if (e.target.classList.contains('remove-player-button')) {
@@ -918,31 +1069,27 @@
         mafiaCountInput.addEventListener('input', updateCitizenCount);
         elderCountInput.addEventListener('input', updateCitizenCount);
         doctorCountInput.addEventListener('input', updateCitizenCount);
-        citizenCountInput.addEventListener('input', updateCitizenCount); // Ensure this also triggers update (though it's readonly)
+        citizenCountInput.addEventListener('input', updateCitizenCount);
         startGameButton.addEventListener('click', startGame);
 
-        // Role Reveal Section Buttons
+        // Role Reveal Section Buttons (within Local Game)
         showRoleButton.addEventListener('click', showRole);
         nextPlayerButton.addEventListener('click', nextPlayer);
 
-        // Gameplay Section Click Handler is now delegated on `activePlayersGrid`
+        // Gameplay Section Click Handler (within Local Game)
         // It's attached once in `renderActivePlayers` if not already.
 
-        // Game Over Section Button
+        // Game Over Section Button (within Local Game)
         resetGameButton.addEventListener('click', resetGame);
 
         // Custom Message Box Button
         closeMessageBox.addEventListener('click', hideMessageBox);
 
+
         // Initial load function
         window.onload = function () {
             loadGameData(); // Load data
-            // Initially show only the landing page
-            setupSection.classList.add('hidden');
-            roleRevealSection.classList.add('hidden');
-            gameplaySection.classList.add('hidden');
-            gameOverSection.classList.add('hidden');
-            landingPageSection.classList.remove('hidden');
+            showLandingPage(); // Ensure only the landing page is visible on load
         };
     </script>
 </body>
